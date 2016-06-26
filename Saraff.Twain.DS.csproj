@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A800B54E-DDB8-45AD-9785-82E3EC020FC6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Saraff.Twain.DS</RootNamespace>
+    <AssemblyName>Saraff.Twain.DS</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>sign.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AudioDataSource.cs" />
+    <Compile Include="Capabilities\ArrayDataSourceCapability.cs" />
+    <Compile Include="Capabilities\BitDepthDataSourceCapability.cs" />
+    <Compile Include="Capabilities\BitDepthReductionAttribute.cs" />
+    <Compile Include="Capabilities\BitDepthReductionDataSourceCapability.cs" />
+    <Compile Include="Capabilities\CompressionAttribute.cs" />
+    <Compile Include="Capabilities\CustHalftoneAttribute.cs" />
+    <Compile Include="Capabilities\CustHalftoneDataSourceCapability.cs.cs" />
+    <Compile Include="Capabilities\DefaultValue.cs" />
+    <Compile Include="Capabilities\DeviceDataSourceCapability.cs" />
+    <Compile Include="Capabilities\DevicePropertiesAttribute.cs" />
+    <Compile Include="Capabilities\EnumDataSourceCapability.cs" />
+    <Compile Include="Capabilities\FeederEnabledDataSourceCapability.cs" />
+    <Compile Include="Capabilities\HalftonesAttribute.cs" />
+    <Compile Include="Capabilities\HalftonesDataSourceCapability.cs" />
+    <Compile Include="Capabilities\ImageFileFormatAttribute.cs" />
+    <Compile Include="Capabilities\IndicatorsDataSourceCapability.cs" />
+    <Compile Include="Capabilities\IndicatorsModeDataSourceCapability.cs" />
+    <Compile Include="Capabilities\LsbFirstSupportedAttribute.cs" />
+    <Compile Include="Capabilities\BitOrderDataSourceCapability.cs" />
+    <Compile Include="Capabilities\CompressionDataSourceCapability.cs" />
+    <Compile Include="Capabilities\DeviceOnlineDataSourceCapability.cs" />
+    <Compile Include="Capabilities\OneDataSourceCapability.cs" />
+    <Compile Include="Capabilities\PhysicalHeightDataSourceCapability.cs" />
+    <Compile Include="Capabilities\PhysicalWidthDataSourceCapability.cs" />
+    <Compile Include="Capabilities\PixelFlavorAttribute.cs" />
+    <Compile Include="Capabilities\PixelFlavorDataSourceCapability.cs" />
+    <Compile Include="Capabilities\PixelTypeDataSourceCapability.cs" />
+    <Compile Include="Capabilities\PixelTypeAttribute.cs" />
+    <Compile Include="Capabilities\PlanarChunkyDataSourceCapability.cs" />
+    <Compile Include="Capabilities\PlanarChunkyAttribute.cs" />
+    <Compile Include="Capabilities\SupportedCapsDataSourceCapability.cs" />
+    <Compile Include="Capabilities\ThresholdAttribute.cs" />
+    <Compile Include="Capabilities\ThresholdDataSourceCapabilitiy.cs" />
+    <Compile Include="Capabilities\XferMechAttribute.cs" />
+    <Compile Include="CapabilityEventArgs.cs" />
+    <Compile Include="DataSourceInstaller.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DataSourceInstaller.Designer.cs">
+      <DependentUpon>DataSourceInstaller.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ImageInfo.cs" />
+    <Compile Include="ImageLayoutAttribute.cs" />
+    <Compile Include="ImageMemXfer.cs" />
+    <Compile Include="MemXferBufferSizeAttribute.cs" />
+    <Compile Include="SupportedDataCodesAttribute.cs" />
+    <Compile Include="Capabilities\SupportedDatsDataSourceCapability.cs" />
+    <Compile Include="Capabilities\UIControllableDataSourceCapability.cs" />
+    <Compile Include="Capabilities\UnitsDataSourceCapability.cs" />
+    <Compile Include="Capabilities\XferCountDataSourceCapability.cs" />
+    <Compile Include="Capabilities\XferMechDataSourceCapability.cs" />
+    <Compile Include="Capabilities\XNativeResolutionDataSourceCapability.cs" />
+    <Compile Include="Capabilities\XResolutionDataSourceCapability.cs" />
+    <Compile Include="Capabilities\YNativeResolutionDataSourceCapability.cs" />
+    <Compile Include="Capabilities\YResolutionDataSourceCapability.cs" />
+    <Compile Include="CapabilityAttribute.cs" />
+    <Compile Include="DataSource.cs" />
+    <Compile Include="DataSourceAttribute.cs" />
+    <Compile Include="DataSourceCapabilityAttribute.cs" />
+    <Compile Include="DataSourceException.cs" />
+    <Compile Include="Extensions\Helper.cs" />
+    <Compile Include="IDataSource.cs" />
+    <Compile Include="DataSourceCapability.cs" />
+    <Compile Include="ImageDataSource.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DataSourceServices.cs" />
+    <Compile Include="SupportedGroupsAttribute.cs" />
+    <Compile Include="TwainDefs.cs" />
+    <Compile Include="XferEnvironment.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <Compile Include="Capabilities\ImageFileFormatDataSourceCapability.cs" />
+    <None Include="sign.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="COPYING.LESSER.txt" />
+    <Content Include="COPYING.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
