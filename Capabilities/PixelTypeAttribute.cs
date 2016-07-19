@@ -35,9 +35,20 @@ using System.Text;
 
 namespace Saraff.Twain.DS.Capabilities {
 
+    /// <summary>
+    /// Define the type of pixel data that a Source is capable of acquiring (for example, black and white, gray,
+    /// RGB, etc.).
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class PixelTypeAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PixelTypeAttribute"/> class.
+        /// </summary>
+        /// <param name="types">The types.</param>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        /// <exception cref="System.ArgumentException"></exception>
         public PixelTypeAttribute(params TwPixelType[] types) {
             if(types==null) {
                 throw new ArgumentNullException();
@@ -49,11 +60,23 @@ namespace Saraff.Twain.DS.Capabilities {
 
         }
 
+        /// <summary>
+        /// Gets the pixel types.
+        /// </summary>
+        /// <value>
+        /// The pixel types.
+        /// </value>
         public TwPixelType[] PixelTypes {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Gets or sets the default value.
+        /// </summary>
+        /// <value>
+        /// The default value.
+        /// </value>
         public TwPixelType DefaultValue {
             get;
             set;

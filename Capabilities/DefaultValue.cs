@@ -35,17 +35,41 @@ using System.Text;
 
 namespace Saraff.Twain.DS.Capabilities {
 
+    /// <summary>
+    /// Default value of a capability.
+    /// </summary>
+    /// <typeparam name="T">Type of a capability value.</typeparam>
     public struct DefaultValue<T> {
         private T _value;
 
+        /// <summary>
+        /// Performs an implicit conversion from <see cref="T"/> to <see cref="DefaultValue{T}"/>.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
         public static implicit operator DefaultValue<T>(T value) {
             return new DefaultValue<T> {_value=value};
         }
 
+        /// <summary>
+        /// Performs an implicit conversion from <see cref="DefaultValue{T}"/> to <see cref="T"/>.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
         public static implicit operator T(DefaultValue<T> value) {
             return value._value;
         }
 
+        /// <summary>
+        /// Gets the value.
+        /// </summary>
+        /// <value>
+        /// The value.
+        /// </value>
         public T Value {
             get {
                 return this._value;

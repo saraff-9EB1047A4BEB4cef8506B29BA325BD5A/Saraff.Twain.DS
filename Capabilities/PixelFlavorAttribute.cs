@@ -35,13 +35,27 @@ using System.Text;
 
 namespace Saraff.Twain.DS.Capabilities {
 
+    /// <summary>
+    /// Define sense of the pixel whose numeric value is zero (minimum data value).
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class PixelFlavorAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PixelFlavorAttribute"/> class.
+        /// </summary>
+        /// <param name="values">The values.</param>
         public PixelFlavorAttribute(params TwPF[] values) {
             this.Values=values;
         }
 
+        /// <summary>
+        /// Gets the values.
+        /// </summary>
+        /// <value>
+        /// The values.
+        /// </value>
         public TwPF[] Values {
             get;
             private set;

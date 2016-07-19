@@ -37,16 +37,35 @@ using Saraff.Twain.DS.Extensions;
 
 namespace Saraff.Twain.DS.Capabilities {
 
+    /// <summary>
+    /// Provide basic functionality for a capabilities classes with a array of values.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <seealso cref="Saraff.Twain.DS.DataSourceCapability" />
     public abstract class ArrayDataSourceCapability<TValue>:DataSourceCapability where TValue:IComparable {
         private Collection<TValue> _values=null;
         private Collection<TValue> _default=null;
 
         #region DataSourceCapability
 
+        /// <summary>
+        /// Returns the Source’s Available Values for a specified capability.
+        /// </summary>
+        /// <returns>
+        /// Available Values.
+        /// </returns>
         protected override object[] GetCore() {
             return this.CoreValues.CastToArray();
         }
 
+        /// <summary>
+        /// Returns the Source’s Available Value(s) at a specified index for a specified capability.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns>
+        /// Available Value(s).
+        /// </returns>
+        /// <exception cref="System.InvalidOperationException"></exception>
         protected override object[] GetValueCore(int index) {
             switch(index) {
                 case 0:
@@ -57,14 +76,31 @@ namespace Saraff.Twain.DS.Capabilities {
             throw new InvalidOperationException();
         }
 
+        /// <summary>
+        /// Changes the Current Value of the capability to that specified by the application.
+        /// </summary>
+        /// <param name="value">The value.</param>
         protected override void SetCore(object value) {
             this.Value=this._Cast(value);
         }
 
+        /// <summary>
+        /// Changes the Current Value of the capability to that specified by the application.
+        /// </summary>
+        /// <param name="minValue">The minimum value.</param>
+        /// <param name="maxValue">The maximum value.</param>
+        /// <param name="step">The step.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <param name="currentValue">The current value.</param>
+        /// <exception cref="System.NotSupportedException"></exception>
         protected override void SetCore(object minValue, object maxValue, object step, object defaultValue, object currentValue) {
             throw new NotSupportedException();
         }
 
+        /// <summary>
+        /// Changes the Current Value of the capability to that specified by the application.
+        /// </summary>
+        /// <param name="value">The values.</param>
         protected override void SetCore(object[] value) {
             var _result=new TValue[value.Length];
             for(var i=0; i<value.Length; i++) {
@@ -73,16 +109,34 @@ namespace Saraff.Twain.DS.Capabilities {
             this.Value=_result;
         }
 
+        /// <summary>
+        /// Changes the Current Value of the capability to that specified by the application.
+        /// </summary>
+        /// <param name="value">The values.</param>
+        /// <param name="defaultIndex">The default index.</param>
+        /// <param name="currentIndex">Index of the current.</param>
+        /// <exception cref="System.NotSupportedException"></exception>
         protected override void SetCore(object[] value, int defaultIndex, int currentIndex) {
             throw new NotSupportedException();
         }
 
+        /// <summary>
+        /// Change the Current Value of the specified capability back to its power-on value and return the
+        /// new Current Value.
+        /// </summary>
         protected override void ResetCore() {
             if(this.DefaultIndexCore!=0) {
                 this.CoreValues=this._default;
             }
         }
 
+        /// <summary>
+        /// Gets or sets index of current value.
+        /// </summary>
+        /// <value>
+        /// The index.
+        /// </value>
+        /// <exception cref="System.NotSupportedException"></exception>
         protected override int CurrentIndexCore {
             get {
                 return 0;
@@ -92,6 +146,13 @@ namespace Saraff.Twain.DS.Capabilities {
             }
         }
 
+        /// <summary>
+        /// Gets or sets index of default value.
+        /// </summary>
+        /// <value>
+        /// The index.
+        /// </value>
+        /// <exception cref="System.NotSupportedException"></exception>
         protected override int DefaultIndexCore {
             get {
                 return this._default!=null&&this._default.Count>0?1:0;
@@ -101,6 +162,13 @@ namespace Saraff.Twain.DS.Capabilities {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the value.
+        /// </summary>
+        /// <value>
+        /// The value.
+        /// </value>
+        /// <exception cref="System.InvalidOperationException"></exception>
         public override object Value {
             get {
                 return this.CoreValues;
@@ -124,6 +192,12 @@ namespace Saraff.Twain.DS.Capabilities {
 
         #endregion
 
+        /// <summary>
+        /// Gets or sets the internal values.
+        /// </summary>
+        /// <value>
+        /// The values.
+        /// </value>
         protected virtual Collection<TValue> CoreValues {
             get {
                 this.OnCapabilityValueNeeded();

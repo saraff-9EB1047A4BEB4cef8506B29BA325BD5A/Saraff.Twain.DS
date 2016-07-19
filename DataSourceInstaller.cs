@@ -40,15 +40,26 @@ using System.Reflection;
 
 namespace Saraff.Twain.DS {
 
+    /// <summary>
+    /// The Data Source Installer.
+    /// </summary>
+    /// <seealso cref="System.Configuration.Install.Installer" />
     public partial class DataSourceInstaller:Installer {
         private const string _x86=@"twain_32";
         private const string _x64=@"twain_64";
         private string _twainDirectory=null;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataSourceInstaller"/> class.
+        /// </summary>
         public DataSourceInstaller() {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Вызывает событие <see cref="E:System.Configuration.Install.Installer.AfterInstall" />.
+        /// </summary>
+        /// <param name="savedState"><see cref="T:System.Collections.IDictionary" />, содержащий состояние компьютера после завершения установки всех установщиков из свойства <see cref="P:System.Configuration.Install.Installer.Installers" />.</param>
         protected override void OnAfterInstall(IDictionary savedState) {
             base.OnAfterInstall(savedState);
             Directory.CreateDirectory(this.TwainDirectory);
@@ -59,6 +70,10 @@ namespace Saraff.Twain.DS {
             File.Move(_ds, Path.ChangeExtension(_ds, ".ds"));
         }
 
+        /// <summary>
+        /// Вызывает событие <see cref="E:System.Configuration.Install.Installer.BeforeUninstall" />.
+        /// </summary>
+        /// <param name="savedState"><see cref="T:System.Collections.IDictionary" />, содержащий состояние компьютера до отмены установок установщиками из свойства <see cref="P:System.Configuration.Install.Installer.Installers" />.</param>
         protected override void OnBeforeUninstall(IDictionary savedState) {
             base.OnBeforeUninstall(savedState);
             foreach(var _file in Directory.GetFiles(this.TwainDirectory, "*.ds")) {
@@ -87,6 +102,12 @@ namespace Saraff.Twain.DS {
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether is 64 bit OS.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if is 64 bit OS; otherwise, <c>false</c>.
+        /// </value>
         protected virtual bool Is64Bit {
             get {
                 return Environment.Is64BitProcess;

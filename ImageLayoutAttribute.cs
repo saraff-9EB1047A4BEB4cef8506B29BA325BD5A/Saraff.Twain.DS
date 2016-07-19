@@ -36,13 +36,32 @@ using System.Drawing;
 
 namespace Saraff.Twain.DS {
 
+    /// <summary>
+    /// Define information on the physical layout of the image on the
+    /// acquisition platform of the Source(e.g.the glass of a flatbed scanner,the size of a photograph,
+    /// etc.).
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class ImageLayoutAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ImageLayoutAttribute"/> class.
+        /// </summary>
+        /// <param name="x">The X.</param>
+        /// <param name="y">The Y.</param>
+        /// <param name="width">The width.</param>
+        /// <param name="height">The height.</param>
         public ImageLayoutAttribute(float x, float y, float width, float height) {
             this.Frame=new RectangleF(x, y, width, height);
         }
 
+        /// <summary>
+        /// Gets the physical layout of the image.
+        /// </summary>
+        /// <value>
+        /// The frame.
+        /// </value>
         public RectangleF Frame {
             get;
             private set;

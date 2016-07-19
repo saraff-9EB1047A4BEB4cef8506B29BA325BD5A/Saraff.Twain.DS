@@ -35,10 +35,13 @@ using System.Text;
 
 namespace Saraff.Twain.DS {
 
+    /// <summary>
+    /// Used to pass image entry (e.g. in strips) from DS to appId.
+    /// </summary>
     public sealed class ImageMemXfer {
 
         /// <summary>
-        /// How the entry is compressed.
+        /// Get or set how the entry is compressed.
         /// </summary>
         public TwCompression Compression {
             get;
@@ -46,7 +49,7 @@ namespace Saraff.Twain.DS {
         }
 
         /// <summary>
-        /// Number of bytes in a row of entry.
+        /// Get or set number of bytes in a row of entry.
         /// </summary>
         public uint BytesPerRow {
             get;
@@ -54,7 +57,7 @@ namespace Saraff.Twain.DS {
         }
 
         /// <summary>
-        /// How many columns.
+        /// Get or set number of columns.
         /// </summary>
         public uint Columns {
             get;
@@ -62,7 +65,7 @@ namespace Saraff.Twain.DS {
         }
 
         /// <summary>
-        /// How many rows.
+        /// Get or set number of rows.
         /// </summary>
         public uint Rows {
             get;
@@ -70,7 +73,7 @@ namespace Saraff.Twain.DS {
         }
 
         /// <summary>
-        /// How far from the side of the image.
+        /// Get or set offset from the side of the image.
         /// </summary>
         public uint XOffset {
             get;
@@ -78,7 +81,7 @@ namespace Saraff.Twain.DS {
         }
 
         /// <summary>
-        /// How far from the top of the image.
+        /// Get or set offset from the top of the image.
         /// </summary>
         public uint YOffset {
             get;
@@ -93,6 +96,12 @@ namespace Saraff.Twain.DS {
             set;
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating that a Source done transferring the specified image.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if a Source done transferring the specified image; otherwise, <c>false</c>.
+        /// </value>
         public bool IsXferDone {
             get;
             set;

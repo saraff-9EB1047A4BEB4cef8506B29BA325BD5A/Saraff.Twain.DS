@@ -35,9 +35,18 @@ using System.Text;
 
 namespace Saraff.Twain.DS {
 
+    /// <summary>
+    /// Define property of a capability.
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Class,AllowMultiple=false,Inherited=false)]
     public sealed class DataSourceCapabilityAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataSourceCapabilityAttribute"/> class.
+        /// </summary>
+        /// <param name="capability">The capability.</param>
+        /// <param name="type">The type.</param>
         public DataSourceCapabilityAttribute(TwCap capability, TwType type) {
             this.Capability=capability;
             this.Type=type;
@@ -46,31 +55,67 @@ namespace Saraff.Twain.DS {
             this.SupportedOperations=TwQC.Get|TwQC.GetCurrent|TwQC.GetDefault|TwQC.Set|TwQC.Reset;
         }
 
+        /// <summary>
+        /// Gets the capability constant.
+        /// </summary>
+        /// <value>
+        /// The capability constant.
+        /// </value>
         public TwCap Capability {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Gets the type of capability value.
+        /// </summary>
+        /// <value>
+        /// The data type.
+        /// </value>
         public TwType Type {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Gets or sets a container type of capability values.
+        /// </summary>
+        /// <value>
+        /// The container type.
+        /// </value>
         public TwOn Get {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets a container type of current value.
+        /// </summary>
+        /// <value>
+        /// The container type.
+        /// </value>
         public TwOn GetCurrent {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets a container type of default value.
+        /// </summary>
+        /// <value>
+        /// The container type.
+        /// </value>
         public TwOn GetDefault {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the supported operations.
+        /// </summary>
+        /// <value>
+        /// The supported operations.
+        /// </value>
         public TwQC SupportedOperations {
             get;
             set;

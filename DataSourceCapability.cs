@@ -36,11 +36,17 @@ using System.Diagnostics;
 
 namespace Saraff.Twain.DS {
 
+    /// <summary>
+    /// Provide basic functionality for a capabilities classes.
+    /// </summary>
     [DebuggerDisplay("{this.CapabilityInfo.Capability}; SupportedOperationsCore = {this.SupportedOperationsCore}; Get = {this.CapabilityInfo.Get}; GetCurrent = {this.CapabilityInfo.GetCurrent}; GetDefault = {this.CapabilityInfo.GetDefault};")]
     public abstract class DataSourceCapability {
         private DataSourceCapabilityAttribute _info;
         private bool _suppressEvents=false;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataSourceCapability"/> class.
+        /// </summary>
         protected DataSourceCapability() {
         }
 
@@ -136,6 +142,13 @@ namespace Saraff.Twain.DS {
 
         #endregion
 
+        /// <summary>
+        /// Gets the capability information.
+        /// </summary>
+        /// <value>
+        /// The capability information.
+        /// </value>
+        /// <exception cref="System.InvalidOperationException"></exception>
         public DataSourceCapabilityAttribute CapabilityInfo {
             get {
                 if(this._info==null) {
@@ -150,42 +163,106 @@ namespace Saraff.Twain.DS {
             }
         }
 
+        /// <summary>
+        /// Occurs when a capability value changed.
+        /// </summary>
         public event EventHandler<CapabilityEventArgs> CapabilityChanged;
 
+        /// <summary>
+        /// Occurs when a capability value needed.
+        /// </summary>
         public event EventHandler<CapabilityEventArgs> CapabilityValueNeeded;
 
         #region Core
 
+        /// <summary>
+        /// Get related instance of <see cref="DataSource"/>.
+        /// </summary>
+        /// <value>
+        /// The Data Source.
+        /// </value>
         protected DataSource DS {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Returns the Source’s Available Values for a specified capability.
+        /// </summary>
+        /// <returns>Available Values.</returns>
         protected abstract object[] GetCore();
 
+        /// <summary>
+        /// Returns the Source’s Available Value(s) at a specified index for a specified capability.
+        /// </summary>
+        /// <returns>Available Value(s).</returns>
         protected abstract object[] GetValueCore(int index);
 
+        /// <summary>
+        /// Changes the Current Value of the capability to that specified by the application.
+        /// </summary>
+        /// <param name="value">The value.</param>
         protected abstract void SetCore(object value);
 
+        /// <summary>
+        /// Changes the Current Value of the capability to that specified by the application.
+        /// </summary>
+        /// <param name="minValue">The minimum value.</param>
+        /// <param name="maxValue">The maximum value.</param>
+        /// <param name="step">The step.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <param name="currentValue">The current value.</param>
         protected abstract void SetCore(object minValue, object maxValue, object step, object defaultValue, object currentValue);
 
+        /// <summary>
+        /// Changes the Current Value of the capability to that specified by the application.
+        /// </summary>
+        /// <param name="value">The values.</param>
         protected abstract void SetCore(object[] value);
 
+        /// <summary>
+        /// Changes the Current Value of the capability to that specified by the application.
+        /// </summary>
+        /// <param name="value">The values.</param>
+        /// <param name="defaultIndex">The default index.</param>
+        /// <param name="currentIndex">Index of the current.</param>
         protected abstract void SetCore(object[] value, int defaultIndex, int currentIndex);
 
+        /// <summary>
+        /// Change the Current Value of the specified capability back to its power-on value and return the
+        /// new Current Value.
+        /// </summary>
         protected abstract void ResetCore();
 
+        /// <summary>
+        /// Returns the Source’s support status of this capability.
+        /// </summary>
+        /// <value>
+        /// The supported operations.
+        /// </value>
         protected virtual TwQC SupportedOperationsCore {
             get {
                 return this.CapabilityInfo.SupportedOperations;
             }
         }
 
+        /// <summary>
+        /// Gets or sets index of current value.
+        /// </summary>
+        /// <value>
+        /// The index.
+        /// </value>
         protected abstract int CurrentIndexCore {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets index of default value.
+        /// </summary>
+        /// <value>
+        /// The index.
+        /// </value>
         protected abstract int DefaultIndexCore {
             get;
             set;
@@ -234,16 +311,31 @@ namespace Saraff.Twain.DS {
             throw new DataSourceException(TwRC.Failure, TwCC.CapSeqError);
         }
 
+        /// <summary>
+        /// Pack values to the range array.
+        /// </summary>
+        /// <param name="minValue">The minimum value.</param>
+        /// <param name="maxValue">The maximum value.</param>
+        /// <param name="step">The step.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <param name="currentValue">The current value.</param>
+        /// <returns>Array of values.</returns>
         protected object[] ToRange(object minValue, object maxValue, object step, object defaultValue, object currentValue) {
             return new object[] { minValue, step, defaultValue, currentValue, maxValue };
         }
 
+        /// <summary>
+        /// Invoked when the capability value changed.
+        /// </summary>
         protected void OnCapabilityChanged() {
             if(this.CapabilityChanged!=null&&!this._suppressEvents) {
                 this.CapabilityChanged(this, new CapabilityEventArgs(this));
             }
         }
 
+        /// <summary>
+        /// Invoked when the capability value needed.
+        /// </summary>
         protected void OnCapabilityValueNeeded() {
             if(!this._suppressEvents) {
                 this._suppressEvents=true;
@@ -257,6 +349,12 @@ namespace Saraff.Twain.DS {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the value.
+        /// </summary>
+        /// <value>
+        /// The value.
+        /// </value>
         public abstract object Value {
             get;
             set;

@@ -35,18 +35,37 @@ using System.Text;
 
 namespace Saraff.Twain.DS.Capabilities {
 
+    /// <summary>
+    /// Define a transfer mechanisms the source supports.
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class XferMechAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XferMechAttribute"/> class.
+        /// </summary>
         public XferMechAttribute() {
             this.MemFile=this.File=false;
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether a Source supported a Disk File Mode Transfer.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if supported; otherwise, <c>false</c>.
+        /// </value>
         public bool MemFile {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether a Source supported a Buffered Memory Mode Transfer With File Format.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if supported; otherwise, <c>false</c>.
+        /// </value>
         public bool File {
             get;
             set;

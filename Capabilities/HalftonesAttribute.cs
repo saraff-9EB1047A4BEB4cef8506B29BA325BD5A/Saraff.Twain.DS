@@ -35,13 +35,27 @@ using System.Text;
 
 namespace Saraff.Twain.DS.Capabilities {
 
+    /// <summary>
+    /// Define a list of names of the halftone patterns available within the Source.
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class HalftonesAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HalftonesAttribute"/> class.
+        /// </summary>
+        /// <param name="patterns">The patterns.</param>
         public HalftonesAttribute(params string[] patterns) {
             this.Patterns=patterns;
         }
 
+        /// <summary>
+        /// Gets the halftone patterns.
+        /// </summary>
+        /// <value>
+        /// The halftone patterns.
+        /// </value>
         public string[] Patterns {
             get;
             private set;

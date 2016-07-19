@@ -35,12 +35,26 @@ using System.Text;
 
 namespace Saraff.Twain.DS {
 
+    /// <summary>
+    /// Provide information about a event of a capability.
+    /// </summary>
+    /// <seealso cref="System.EventArgs" />
     public sealed class CapabilityEventArgs:EventArgs {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CapabilityEventArgs"/> class.
+        /// </summary>
+        /// <param name="capability">The capability.</param>
         public CapabilityEventArgs(DataSourceCapability capability) {
             this.Capability=capability;
         }
 
+        /// <summary>
+        /// Gets the capability.
+        /// </summary>
+        /// <value>
+        /// The capability.
+        /// </value>
         public DataSourceCapability Capability {
             get;
             private set;

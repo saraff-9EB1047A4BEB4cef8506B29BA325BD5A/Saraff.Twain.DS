@@ -35,8 +35,32 @@ using System.Text;
 
 namespace Saraff.Twain.DS {
 
+    /// <summary>
+    /// Provide a Data Source. Traditional device drivers are now included with the
+    /// Source software and do not need to be shipped by applications.
+    /// </summary>
     public interface IDataSource {
 
+        /// <summary>
+        /// Every Source is required to have a single entry point called DS_Entry. DS_Entry is only called by the Source Manager.
+        /// </summary>
+        /// <param name="appId">
+        /// This points to a TwIdentity structure, allocated by the application, that describes the
+        /// application making the call. One of the fields in this structure, called Id, is an arbitrary and
+        /// unique identifier assigned by the Source Manager to tag the application as a unique TWAIN
+        /// entity. The Source Manager maintains a copy of the application’s identity structure, so the
+        /// application must not modify that structure unless it first breaks its connection with the Source
+        /// Manager,then reconnects to cause the Source Manager to store the new, modified identity.
+        /// </param>
+        /// <param name="dg">The Data Group of the operation triplet. Currently, only DG_CONTROL, DG_IMAGE, and DG_AUDIO are defined.</param>
+        /// <param name="dat">The Data Argument Type of the operation triplet.</param>
+        /// <param name="msg">The Message of the operation triplet.</param>
+        /// <param name="data">
+        /// The pData parameter is a pointer to the data (a variable or, more
+        /// typically, a structure) that will be used according to the action specified by the operation
+        /// triplet.
+        /// </param>
+        /// <returns></returns>
         TwRC ProcessRequest(TwIdentity appId, TwDG dg, TwDAT dat, TwMSG msg, IntPtr data);
     }
 }

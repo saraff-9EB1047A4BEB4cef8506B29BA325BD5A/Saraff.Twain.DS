@@ -35,13 +35,27 @@ using System.Text;
 
 namespace Saraff.Twain.DS {
 
+    /// <summary>
+    /// Define supported a capapability.
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Class,AllowMultiple=true,Inherited=false)]
     public sealed class CapabilityAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CapabilityAttribute"/> class.
+        /// </summary>
+        /// <param name="type">The type.</param>
         public CapabilityAttribute(Type type) {
             this.Type=type;
         }
 
+        /// <summary>
+        /// Gets the type of a capability.
+        /// </summary>
+        /// <value>
+        /// The type.
+        /// </value>
         public Type Type {
             get;
             private set;

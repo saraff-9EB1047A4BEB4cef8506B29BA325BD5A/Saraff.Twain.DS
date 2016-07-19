@@ -35,21 +35,43 @@ using System.Text;
 
 namespace Saraff.Twain.DS {
 
+    /// <summary>
+    /// Exception of a Data Source.
+    /// </summary>
+    /// <seealso cref="System.Exception" />
+    [Serializable]
     public sealed class DataSourceException:Exception {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataSourceException"/> class.
+        /// </summary>
+        /// <param name="rc">The TWRC_xxxx.</param>
+        /// <param name="cc">The TWCC_xxxx.</param>
         public DataSourceException(TwRC rc, TwCC cc) : this(rc, cc, string.Empty) {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataSourceException"/> class.
+        /// </summary>
+        /// <param name="rc">The TWRC_xxxx.</param>
+        /// <param name="cc">The TWCC_xxxx.</param>
+        /// <param name="message">The message.</param>
         public DataSourceException(TwRC rc, TwCC cc, string message) : base(message) {
             this.ReturnCode=rc;
             this.ConditionCode=cc;
         }
 
+        /// <summary>
+        /// Возвращает код результата операции. Get return code.
+        /// </summary>
         public TwRC ReturnCode {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Возвращает код состояния операции. Get condition code.
+        /// </summary>
         public TwCC ConditionCode {
             get;
             private set;

@@ -35,9 +35,19 @@ using System.Text;
 
 namespace Saraff.Twain.DS.Capabilities {
 
+    /// <summary>
+    /// Define compression schemes for Buffered Memory and File transfers.
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class CompressionAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CompressionAttribute"/> class.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        /// <exception cref="System.ArgumentException"></exception>
         public CompressionAttribute(params TwCompression[] value) {
             if(value==null) {
                 throw new ArgumentNullException();
@@ -48,6 +58,12 @@ namespace Saraff.Twain.DS.Capabilities {
             this.Compression=value;
         }
 
+        /// <summary>
+        /// Gets the compression schemes.
+        /// </summary>
+        /// <value>
+        /// The compression schemes.
+        /// </value>
         public TwCompression[] Compression {
             get;
             private set;

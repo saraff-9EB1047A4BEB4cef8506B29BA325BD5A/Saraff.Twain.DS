@@ -39,6 +39,11 @@ using System.IO;
 
 namespace Saraff.Twain.DS {
 
+    /// <summary>
+    /// Provide a Data Source that controls the image acquisition device and is written by the device developer to
+    /// comply with TWAIN specifications. Traditional device drivers are now included with the
+    /// Source software and do not need to be shipped by applications.
+    /// </summary>
     [SupportedGroups(TwDG.Image|TwDG.DS2)]
     [Capability(typeof(Capabilities.BitDepthDataSourceCapability))]
     [Capability(typeof(Capabilities.BitOrderDataSourceCapability))]
@@ -64,6 +69,20 @@ namespace Saraff.Twain.DS {
     [SupportedDataCodes(TwDAT.ImageLayout, TwDAT.ImageInfo, TwDAT.ImageNativeXfer, TwDAT.ImageMemXfer, TwDAT.ImageFileXfer)]
     public abstract class ImageDataSource:DataSource {
 
+        /// <summary>
+        /// Invoked to processing a TWAIN operations (Triplets).
+        /// </summary>
+        /// <param name="dg">The Data Group of the operation triplet. Currently, only DG_CONTROL, DG_IMAGE, and DG_AUDIO are defined.</param>
+        /// <param name="dat">The Data Argument Type of the operation triplet.</param>
+        /// <param name="msg">The Message of the operation triplet.</param>
+        /// <param name="data">The pData parameter is a pointer to the data (a variable or, more
+        /// typically, a structure) that will be used according to the action specified by the operation
+        /// triplet.</param>
+        /// <returns>
+        /// TWAIN Return Codes.
+        /// </returns>
+        /// <exception cref="DataSourceException">
+        /// </exception>
         protected override TwRC OnProcessRequest(TwDG dg, TwDAT dat, TwMSG msg, IntPtr data) {
             if(dg==TwDG.Image) {
                 switch(dat) {
@@ -99,12 +118,52 @@ namespace Saraff.Twain.DS {
             return base.OnProcessRequest(dg, dat, msg, data);
         }
 
+        /// <summary>
+        /// Returns the Data Group (the type of data) for the upcoming transfer. The Source is required to
+        /// only supply one of the DGs specified in the SupportedGroups field of a AppIdentity.
+        /// </summary>
+        /// <returns>
+        /// The DG_xxxx constant that identifies the type of data that is ready for transfer
+        /// from the Source
+        /// </returns>
         protected override TwDG OnGetXferGroup() {
             return TwDG.Image;
         }
 
         #region Process Request
 
+        /// <summary>
+        /// DG_IMAGE / DAT_IMAGELAYOUT / MSG_GET
+        /// The DAT_IMAGELAYOUT operations control information on the physical layout of the image on the
+        /// acquisition platform of the Source(e.g.the glass of a flatbed scanner,the size of a photograph,
+        /// etc.).
+        /// The MSG_GET operation describes both the size and placement of the image on the scanner.The
+        /// coordinates on the scanner and the extents of the image are expressed in the unit of measure
+        /// currently negotiated for ICAP_UNITS(default is inches).
+        /// 
+        /// DG_IMAGE / DAT_IMAGELAYOUT / MSG_GETDEFAULT
+        /// This operation returns the default information on the layout of an image. This is the size and
+        /// position of the image that will be acquired from the Source if the acquisition is started with the
+        /// Source(and the device it is controlling) in its power-on state(for instance,most flatbed scanners
+        /// will capture the entire bed).
+        /// 
+        /// DG_IMAGE / DAT_IMAGELAYOUT / MSG_RESET
+        /// This operation sets the image layout information for the next transfer to its default settings.
+        /// 
+        /// DG_IMAGE / DAT_IMAGELAYOUT / MSG_SET
+        /// This operation sets the layout for the next image transfer. This allows the application to specify
+        /// the physical area to be acquired during the next image transfer(for instance,a frame-based
+        /// application would pass to the Source the size of the frame the user selected within the
+        /// application—the helpful Source would present a selection region already sized to match the
+        /// layout frame size).
+        /// </summary>
+        /// <param name="msg">The Message of the operation triplet.</param>
+        /// <param name="data">The data parameter is a pointer to the data (a variable or, more
+        /// typically, a structure) that will be used according to the action specified by the operation
+        /// triplet.</param>
+        /// <returns>TWAIN Return Codes.</returns>
+        /// <exception cref="DataSourceException">
+        /// </exception>
         private TwRC _ImageLayoutProcessRequest(TwMSG msg, IntPtr data) {
             var _layout=Marshal.PtrToStructure(data, typeof(TwImageLayout)) as TwImageLayout;
             switch(msg) {
@@ -140,6 +199,17 @@ namespace Saraff.Twain.DS {
             throw new DataSourceException(TwRC.Failure, TwCC.BadProtocol);
         }
 
+        /// <summary>
+        /// DG_IMAGE / DAT_IMAGEINFO / MSG_GET
+        /// This operation provides the Application with specific image description
+        /// information about the current image that has just been transferred.
+        /// </summary>
+        /// <param name="msg">The Message of the operation triplet.</param>
+        /// <param name="data">The data parameter is a pointer to the data (a variable or, more
+        /// typically, a structure) that will be used according to the action specified by the operation
+        /// triplet.</param>
+        /// <returns>TWAIN Return Codes.</returns>
+        /// <exception cref="DataSourceException"></exception>
         private TwRC _ImageInfoProcessRequest(TwMSG msg, IntPtr data) {
             switch(msg) {
                 case TwMSG.Get:
@@ -149,6 +219,20 @@ namespace Saraff.Twain.DS {
             throw new DataSourceException(TwRC.Failure, TwCC.BadProtocol);
         }
 
+        /// <summary>
+        /// DG_IMAGE / DAT_IMAGENATIVEXFER / MSG_GET
+        /// Causes the transfer of an image’s data from the Source to the application, via the Native transfer
+        /// mechanism, to begin.The resulting data is stored in main memory in a single block.The data is
+        /// stored in the Operating Systems native image format. The size of the image that can be transferred
+        /// is limited to the size of the memory block that can be allocated by the Source.If the image is too
+        /// large to fit,the Source may resize or crop the image.
+        /// </summary>
+        /// <param name="msg">The Message of the operation triplet.</param>
+        /// <param name="data">The data parameter is a pointer to the data (a variable or, more
+        /// typically, a structure) that will be used according to the action specified by the operation
+        /// triplet.</param>
+        /// <returns>TWAIN Return Codes.</returns>
+        /// <exception cref="DataSourceException"></exception>
         private TwRC _ImageNativeXferProcessRequest(TwMSG msg, IntPtr data) {
             switch(msg) {
                 case TwMSG.Get:
@@ -172,6 +256,23 @@ namespace Saraff.Twain.DS {
             throw new DataSourceException(TwRC.Failure, TwCC.BadProtocol);
         }
 
+        /// <summary>
+        /// DG_IMAGE / DAT_IMAGEMEMXFER / MSG_GET
+        /// This operation is used to initiate the transfer of an image from the Source to the application via the
+        /// Buffered Memory transfer mechanism.
+        /// This operation supports the transfer of successive blocks of image data (in strips or, optionally,
+        /// tiles) from the Source into one or more main memory transfer buffers. These buffers(for strips)
+        /// are allocated and owned by the application. For tiled transfers, the source allocates the buffers.
+        /// The application should repeatedly invoke this operation while TWRC_SUCCESS is returned by the Source.
+        /// </summary>
+        /// <param name="msg">The Message of the operation triplet.</param>
+        /// <param name="data">The data parameter is a pointer to the data (a variable or, more
+        /// typically, a structure) that will be used according to the action specified by the operation
+        /// triplet.</param>
+        /// <param name="isMemFile">If set to <c>true</c> that transfer a MemFile.</param>
+        /// <returns>TWAIN Return Codes.</returns>
+        /// <exception cref="DataSourceException">
+        /// </exception>
         private TwRC _ImageMemXferProcessRequest(TwMSG msg, IntPtr data, bool isMemFile) {
             switch(msg) {
                 case TwMSG.Get:
@@ -219,6 +320,14 @@ namespace Saraff.Twain.DS {
             throw new DataSourceException(TwRC.Failure, TwCC.BadProtocol);
         }
 
+        /// <summary>
+        /// DG_IMAGE / DAT_IMAGEFILEXFER / MSG_GET
+        /// This operation is used to initiate the transfer of an image from the Source to the application via the
+        /// disk-file transfer mechanism. It causes the transfer to begin.
+        /// </summary>
+        /// <param name="msg">The Message of the operation triplet.</param>
+        /// <returns>TWAIN Return Codes.</returns>
+        /// <exception cref="DataSourceException"></exception>
         private TwRC _ImageFileXferProcessRequest(TwMSG msg) {
             switch(msg) {
                 case TwMSG.Get:
@@ -232,19 +341,56 @@ namespace Saraff.Twain.DS {
 
         #region protected virtual
 
+        /// <summary>
+        /// Causes the transfer of an image’s data from the Source to the application, via the Native transfer
+        /// mechanism, to begin. The resulting data is stored in main memory in a single block. The data is
+        /// stored in the Operating Systems native image format. The size of the image that can be transferred
+        /// is limited to the size of the memory block that can be allocated by the Source. If the image is too
+        /// large to fit, the Source may resize or crop the image.
+        /// </summary>
+        /// <returns>A image to transfer.</returns>
         protected abstract Image OnImageNativeXfer();
 
+        /// <summary>
+        /// This operation is used to initiate the transfer of an image from the Source to the application via the
+        /// Buffered Memory transfer mechanism.
+        /// This operation supports the transfer of successive blocks of image data (in strips or,optionally,
+        /// tiles) from the Source into one or more main memory transfer buffers. These buffers(for strips)
+        /// are allocated and owned by the application. For tiled transfers, the source allocates the buffers.
+        /// The application should repeatedly invoke this operation while TWRC_SUCCESS is returned by the Source.
+        /// </summary>
+        /// <param name="length">The length.</param>
+        /// <param name="isMemFile">If set to <c>true</c> that transfer a MemFile.</param>
+        /// <returns>Information about transmitting data.</returns>
         protected abstract ImageMemXfer OnImageMemXfer(long length, bool isMemFile);
 
+        /// <summary>
+        /// This operation is used to initiate the transfer of an image from the Source to the application via the
+        /// disk-file transfer mechanism. It causes the transfer to begin.
+        /// </summary>
+        /// <exception cref="DataSourceException"></exception>
         protected virtual void OnImageFileXfer() {
             throw new DataSourceException(TwRC.Failure, TwCC.SeqError);
         }
 
+        /// <summary>
+        /// Gets or sets the current image layout.
+        /// </summary>
+        /// <value>
+        /// The current image layout.
+        /// </value>
         protected virtual RectangleF CurrentImageLayout {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets the default image layout.
+        /// </summary>
+        /// <value>
+        /// The default image layout.
+        /// </value>
+        /// <exception cref="System.InvalidOperationException">Не указан ImageLayoutAttribute.</exception>
         protected virtual RectangleF DefaultImageLayout {
             get {
                 foreach(ImageLayoutAttribute _attr in this.GetType().GetCustomAttributes(typeof(ImageLayoutAttribute), false)) {

@@ -35,13 +35,27 @@ using System.Text;
 
 namespace Saraff.Twain.DS.Capabilities {
 
+    /// <summary>
+    /// Specifies the square-cell halftone (dithering) matrix the Source should use to halftone the image.
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class CustHalftoneAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CustHalftoneAttribute"/> class.
+        /// </summary>
+        /// <param name="matrix">The matrix.</param>
         public CustHalftoneAttribute(params byte[] matrix) {
             this.Matrix=matrix;
         }
 
+        /// <summary>
+        /// Gets the halftone (dithering) matrix.
+        /// </summary>
+        /// <value>
+        /// The halftone (dithering) matrix.
+        /// </value>
         public byte[] Matrix {
             get;
             private set;

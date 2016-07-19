@@ -37,10 +37,21 @@ using System.Drawing;
 
 namespace Saraff.Twain.DS.Capabilities {
 
+    /// <summary>
+    /// Define device properties.
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class DevicePropertiesAttribute:Attribute {
         private static Dictionary<uint, DevicePropertiesAttribute> _current=new Dictionary<uint, DevicePropertiesAttribute>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DevicePropertiesAttribute"/> class.
+        /// </summary>
+        /// <param name="physicalWidth">Width of the physical.</param>
+        /// <param name="physicalHeight">Height of the physical.</param>
+        /// <param name="nativeResolutionX">The native resolution x.</param>
+        /// <param name="nativeResolutionY">The native resolution y.</param>
         public DevicePropertiesAttribute(float physicalWidth, float physicalHeight, float nativeResolutionX, float nativeResolutionY) {
             this.PhysicalWidth=physicalWidth;
             this.PhysicalHeight=physicalHeight;
@@ -48,21 +59,45 @@ namespace Saraff.Twain.DS.Capabilities {
             this.YNativeResolution=nativeResolutionY;
         }
 
+        /// <summary>
+        /// Gets the height of the physical.
+        /// </summary>
+        /// <value>
+        /// The height of the physical.
+        /// </value>
         public float PhysicalHeight {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Gets the width of the physical.
+        /// </summary>
+        /// <value>
+        /// The width of the physical.
+        /// </value>
         public float PhysicalWidth {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Gets the a Y native resolution.
+        /// </summary>
+        /// <value>
+        /// The y native resolution.
+        /// </value>
         public float YNativeResolution {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Gets the a X native resolution.
+        /// </summary>
+        /// <value>
+        /// The x native resolution.
+        /// </value>
         public float XNativeResolution {
             get;
             private set;

@@ -37,6 +37,11 @@ using Saraff.Twain.DS.Extensions;
 
 namespace Saraff.Twain.DS.Capabilities {
 
+    /// <summary>
+    /// Provide basic functionality for a capabilities classes with a list of values.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <seealso cref="Saraff.Twain.DS.DataSourceCapability" />
     public abstract class EnumDataSourceCapability<TValue>:DataSourceCapability where TValue:IComparable {
         private int? _currentIndex=null;
         private int? _defaultIndex=null;
@@ -44,14 +49,31 @@ namespace Saraff.Twain.DS.Capabilities {
 
         #region DataSourceCapability
 
+        /// <summary>
+        /// Returns the Source’s Available Values for a specified capability.
+        /// </summary>
+        /// <returns>
+        /// Available Values.
+        /// </returns>
         protected override object[] GetCore() {
             return this.CoreValues.CastToArray();
         }
 
+        /// <summary>
+        /// Returns the Source’s Available Value(s) at a specified index for a specified capability.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns>
+        /// Available Value(s).
+        /// </returns>
         protected override object[] GetValueCore(int index) {
             return new object[] { this.CoreValues[index] };
         }
 
+        /// <summary>
+        /// Changes the Current Value of the capability to that specified by the application.
+        /// </summary>
+        /// <param name="value">The value.</param>
         protected override void SetCore(object value) {
             for(var _type=typeof(TValue); _type.IsEnum; ) {
                 this.Value=Enum.ToObject(_type, value);
@@ -60,22 +82,52 @@ namespace Saraff.Twain.DS.Capabilities {
             this.Value=(TValue)value;
         }
 
+        /// <summary>
+        /// Changes the Current Value of the capability to that specified by the application.
+        /// </summary>
+        /// <param name="minValue">The minimum value.</param>
+        /// <param name="maxValue">The maximum value.</param>
+        /// <param name="step">The step.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <param name="currentValue">The current value.</param>
+        /// <exception cref="System.NotSupportedException"></exception>
         protected override void SetCore(object minValue, object maxValue, object step, object defaultValue, object currentValue) {
             throw new NotSupportedException();
         }
 
+        /// <summary>
+        /// Changes the Current Value of the capability to that specified by the application.
+        /// </summary>
+        /// <param name="value">The values.</param>
+        /// <exception cref="System.NotSupportedException"></exception>
         protected override void SetCore(object[] value) {
             throw new NotSupportedException();
         }
 
+        /// <summary>
+        /// Changes the Current Value of the capability to that specified by the application.
+        /// </summary>
+        /// <param name="value">The values.</param>
+        /// <param name="defaultIndex">The default index.</param>
+        /// <param name="currentIndex">Index of the current.</param>
         protected override void SetCore(object[] value, int defaultIndex, int currentIndex) {
             this.SetCore(value[currentIndex]);
         }
 
+        /// <summary>
+        /// Change the Current Value of the specified capability back to its power-on value and return the
+        /// new Current Value.
+        /// </summary>
         protected override void ResetCore() {
             this.CurrentIndexCore=this.DefaultIndexCore;
         }
 
+        /// <summary>
+        /// Gets or sets index of current value.
+        /// </summary>
+        /// <value>
+        /// The index.
+        /// </value>
         protected override int CurrentIndexCore {
             get {
                 if(this._currentIndex==null) {
@@ -89,6 +141,12 @@ namespace Saraff.Twain.DS.Capabilities {
             }
         }
 
+        /// <summary>
+        /// Gets or sets index of default value.
+        /// </summary>
+        /// <value>
+        /// The index.
+        /// </value>
         protected override int DefaultIndexCore {
             get {
                 if(this._defaultIndex==null) {
@@ -102,6 +160,13 @@ namespace Saraff.Twain.DS.Capabilities {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the value.
+        /// </summary>
+        /// <value>
+        /// The value.
+        /// </value>
+        /// <exception cref="System.InvalidOperationException"></exception>
         public override object Value {
             get {
                 if(this.CoreValues==null) {
@@ -128,6 +193,12 @@ namespace Saraff.Twain.DS.Capabilities {
 
         #endregion
 
+        /// <summary>
+        /// Gets or sets the internal values.
+        /// </summary>
+        /// <value>
+        /// The values.
+        /// </value>
         protected virtual Collection<TValue> CoreValues {
             get {
                 this.OnCapabilityValueNeeded();

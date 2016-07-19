@@ -35,9 +35,23 @@ using System.Text;
 
 namespace Saraff.Twain.DS {
 
+    /// <summary>
+    /// Provide a Data Source that controls the audio acquisition device and is written by the device developer to
+    /// comply with TWAIN specifications. Traditional device drivers are now included with the
+    /// Source software and do not need to be shipped by applications.
+    /// </summary>
+    /// <seealso cref="Saraff.Twain.DS.DataSource" />
     [SupportedGroups(TwDG.Audio|TwDG.DS2)]
     public abstract class AudioDataSource:DataSource {
 
+        /// <summary>
+        /// Returns the Data Group (the type of data) for the upcoming transfer. The Source is required to
+        /// only supply one of the DGs specified in the SupportedGroups field of a AppIdentity.
+        /// </summary>
+        /// <returns>
+        /// The DG_xxxx constant that identifies the type of data that is ready for transfer
+        /// from the Source
+        /// </returns>
         protected override TwDG OnGetXferGroup() {
             return TwDG.Audio;
         }

@@ -35,22 +35,47 @@ using System.Text;
 
 namespace Saraff.Twain.DS {
 
+    /// <summary>
+    /// Define a Supported Groups for a Data Source.
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Class,AllowMultiple=false,Inherited=true)]
     public sealed class SupportedGroupsAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SupportedGroupsAttribute"/> class.
+        /// </summary>
+        /// <param name="groups">The groups.</param>
         public SupportedGroupsAttribute(TwDG groups) : this(groups, "2.3.0.0") {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SupportedGroupsAttribute"/> class.
+        /// </summary>
+        /// <param name="groups">The groups.</param>
+        /// <param name="protocolVersion">The protocol version.</param>
         public SupportedGroupsAttribute(TwDG groups,string protocolVersion) {
             this.SupportedGroups=groups;
             this.ProtocolVersion=new Version(protocolVersion);
         }
 
+        /// <summary>
+        /// Gets the protocol version.
+        /// </summary>
+        /// <value>
+        /// The protocol version.
+        /// </value>
         public Version ProtocolVersion {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Gets the supported groups.
+        /// </summary>
+        /// <value>
+        /// The supported groups.
+        /// </value>
         public TwDG SupportedGroups {
             get;
             private set;

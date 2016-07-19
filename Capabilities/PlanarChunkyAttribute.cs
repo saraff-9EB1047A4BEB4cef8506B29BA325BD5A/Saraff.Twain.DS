@@ -35,8 +35,18 @@ using System.Text;
 
 namespace Saraff.Twain.DS.Capabilities {
 
+    /// <summary>
+    /// Define color data formats are available.
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     public sealed class PlanarChunkyAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PlanarChunkyAttribute"/> class.
+        /// </summary>
+        /// <param name="values">The values.</param>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        /// <exception cref="System.ArgumentException"></exception>
         public PlanarChunkyAttribute(params TwPC[] values) {
             if(values==null) {
                 throw new ArgumentNullException();
@@ -47,11 +57,23 @@ namespace Saraff.Twain.DS.Capabilities {
             this.DefaultValue=(this.Values=values)[0];
         }
 
+        /// <summary>
+        /// Gets the values.
+        /// </summary>
+        /// <value>
+        /// The values.
+        /// </value>
         public TwPC[] Values {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Gets or sets the default value.
+        /// </summary>
+        /// <value>
+        /// The default value.
+        /// </value>
         public TwPC DefaultValue {
             get;
             set;

@@ -36,12 +36,12 @@ using System.Text;
 namespace Saraff.Twain.DS {
 
     /// <summary>
-    /// Описание изображения.
+    /// Information of a image. Описание изображения.
     /// </summary>
     public sealed class ImageInfo {
 
         /// <summary>
-        /// Resolution in the horizontal
+        /// Get or set resolution in the horizontal.
         /// </summary>
         public float XResolution {
             get;
@@ -49,7 +49,7 @@ namespace Saraff.Twain.DS {
         }
 
         /// <summary>
-        /// Resolution in the vertical
+        /// Get or set resolution in the vertical.
         /// </summary>
         public float YResolution {
             get;
@@ -57,7 +57,7 @@ namespace Saraff.Twain.DS {
         }
 
         /// <summary>
-        /// Columns in the image, -1 if unknown by DS
+        /// Get or set columns in the image, -1 if unknown by DS.
         /// </summary>
         public int ImageWidth {
             get;
@@ -65,7 +65,7 @@ namespace Saraff.Twain.DS {
         }
 
         /// <summary>
-        /// Rows in the image, -1 if unknown by DS
+        /// Get or set rows in the image, -1 if unknown by DS.
         /// </summary>
         public int ImageLength {
             get;
@@ -73,7 +73,7 @@ namespace Saraff.Twain.DS {
         }
 
         /// <summary>
-        /// Number of bits for each sample
+        /// Get or set number of bits for each sample.
         /// </summary>
         public short[] BitsPerSample {
             get;
@@ -81,7 +81,7 @@ namespace Saraff.Twain.DS {
         }
 
         /// <summary>
-        /// Number of bits for each padded pixel
+        /// Get or set number of bits for each padded pixel.
         /// </summary>
         public short BitsPerPixel {
             get;
@@ -89,7 +89,7 @@ namespace Saraff.Twain.DS {
         }
 
         /// <summary>
-        /// True if Planar, False if chunky
+        /// Get or set <c>true</c> if Planar, <c>false</c> if chunky.
         /// </summary>
         public bool Planar {
             get;
@@ -97,7 +97,7 @@ namespace Saraff.Twain.DS {
         }
 
         /// <summary>
-        /// How to interp data; photo interp
+        /// Get or set pixel type of image.
         /// </summary>
         public TwPixelType PixelType {
             get;
@@ -105,7 +105,7 @@ namespace Saraff.Twain.DS {
         }
 
         /// <summary>
-        /// How the data is compressed
+        /// Get or set how the data is compressed.
         /// </summary>
         public TwCompression Compression {
             get;

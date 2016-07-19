@@ -36,6 +36,9 @@ using System.IO;
 
 namespace Saraff.Twain.DS {
 
+    /// <summary>
+    /// Provide information about current transfer environment.
+    /// </summary>
     public sealed class XferEnvironment {
         private string _defaultFileName;
 
@@ -73,33 +76,51 @@ namespace Saraff.Twain.DS {
             }
         }
 
+        /// <summary>
+        /// Get or set preferred buffer size for a memory transfer mode.
+        /// </summary>
         public uint MemXferBufferSize {
             get;
             set;
         }
 
+        /// <summary>
+        /// Get minimum buffer size for a memory transfer mode.
+        /// </summary>
         public uint MinMemXferBufferSize {
             get {
                 return this.MemXferBufferSize>>1;
             }
         }
 
+        /// <summary>
+        /// Get maximum buffer size for a memory transfer mode.
+        /// </summary>
         public uint MaxMemXferBufferSize {
             get {
                 return this.MemXferBufferSize<<1;
             }
         }
 
+        /// <summary>
+        /// Get or set file name for a file transfer mode.
+        /// </summary>
         public string FileXferName {
             get;
             set;
         }
 
+        /// <summary>
+        /// Get or set image file format for a file transfer mode.
+        /// </summary>
         public TwFF FileXferFormat {
             get;
             set;
         }
 
+        /// <summary>
+        /// Get default file name for a file transfer mode.
+        /// </summary>
         internal string DefaultFileXferName {
             get {
                 if(this._defaultFileName==null) {
@@ -109,17 +130,26 @@ namespace Saraff.Twain.DS {
             }
         }
 
+        /// <summary>
+        /// Get default image file format for a file transfer mode.
+        /// </summary>
         internal TwFF DefaultFileXferFormat {
             get {
                 return TwFF.Tiff;
             }
         }
 
+        /// <summary>
+        /// Get the number of transfers the Source is ready to supply to the application, upon demand.
+        /// </summary>
         public ushort PendingXfers {
             get;
             set;
         }
 
+        /// <summary>
+        /// Get or set information about the current image that has just been transferred.
+        /// </summary>
         public ImageInfo ImageInfo {
             get;
             set;

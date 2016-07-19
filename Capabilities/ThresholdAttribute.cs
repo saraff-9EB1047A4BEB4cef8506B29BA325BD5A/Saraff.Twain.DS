@@ -35,13 +35,28 @@ using System.Text;
 
 namespace Saraff.Twain.DS.Capabilities {
 
+    /// <summary>
+    /// Specifies the dividing line between black and white. This is the value the Source will use to
+    /// threshold, if needed, when ICAP_PIXELTYPE = TWPT_BW.
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class ThresholdAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ThresholdAttribute"/> class.
+        /// </summary>
+        /// <param name="value">The value.</param>
         public ThresholdAttribute(float value) {
             this.Value=value;
         }
 
+        /// <summary>
+        /// Gets the value.
+        /// </summary>
+        /// <value>
+        /// The value.
+        /// </value>
         public float Value {
             get;
             private set;

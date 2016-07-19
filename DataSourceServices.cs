@@ -40,6 +40,11 @@ using System.Runtime.InteropServices;
 
 namespace Saraff.Twain.DS {
 
+    /// <summary>
+    /// Controls the TWAIN session. Consumed by both Source Manager and Source. It is always
+    /// available, no matter what the current setting of DG_CONTROL / DAT_XFERGROUP.
+    /// </summary>
+    /// <seealso cref="Saraff.Twain.DS.IDataSource" />
     [SupportedDataCodes(TwDAT.Identity, TwDAT.Status, TwDAT.EntryPoint)]
     public sealed class DataSourceServices:IDataSource {
         private static DataSourceServices _current;
@@ -47,11 +52,30 @@ namespace Saraff.Twain.DS {
         private Dictionary<uint, _DsmEntry> _dsmEntries=new Dictionary<uint, _DsmEntry>();
         private Dictionary<uint, HandlerIdentity> _handlers=new Dictionary<uint, HandlerIdentity>();
 
+        /// <summary>
+        /// Prevents a default instance of the <see cref="DataSourceServices"/> class from being created.
+        /// </summary>
         private DataSourceServices() {
         }
 
         #region IDataSource Members
 
+        /// <summary>
+        /// Every Source is required to have a single entry point called DS_Entry. DS_Entry is only called by the Source Manager.
+        /// </summary>
+        /// <param name="appId">This points to a TwIdentity structure, allocated by the application, that describes the
+        /// application making the call. One of the fields in this structure, called Id, is an arbitrary and
+        /// unique identifier assigned by the Source Manager to tag the application as a unique TWAIN
+        /// entity. The Source Manager maintains a copy of the application’s identity structure, so the
+        /// application must not modify that structure unless it first breaks its connection with the Source
+        /// Manager,then reconnects to cause the Source Manager to store the new, modified identity.</param>
+        /// <param name="dg">The Data Group of the operation triplet. Currently, only DG_CONTROL, DG_IMAGE, and DG_AUDIO are defined.</param>
+        /// <param name="dat">The Data Argument Type of the operation triplet.</param>
+        /// <param name="msg">The Message of the operation triplet.</param>
+        /// <param name="data">The pData parameter is a pointer to the data (a variable or, more
+        /// typically, a structure) that will be used according to the action specified by the operation
+        /// triplet.</param>
+        /// <returns>TWAIN Return Codes.</returns>
         public TwRC ProcessRequest(TwIdentity appId, TwDG dg, TwDAT dat, TwMSG msg, IntPtr data) {
             try {
                 if(dg==TwDG.Control) {
@@ -67,11 +91,11 @@ namespace Saraff.Twain.DS {
                 this._SetConditionCode(appId, TwCC.Success);
                 return this._handlers[appId.Id].ProcessRequest(dg, dat, msg, data);
             } catch(DataSourceException ex) {
-                DataSourceServices.ToLog(ex);
+                DataSourceServices._ToLog(ex);
                 this._SetConditionCode(appId, ex.ConditionCode);
                 return ex.ReturnCode;
             } catch(Exception ex) {
-                DataSourceServices.ToLog(ex);
+                DataSourceServices._ToLog(ex);
             }
             this._SetConditionCode(appId, TwCC.OperationError);
             return TwRC.Failure;
@@ -81,6 +105,12 @@ namespace Saraff.Twain.DS {
 
         #region Properties
 
+        /// <summary>
+        /// Gets the current instance of a Data Source.
+        /// </summary>
+        /// <value>
+        /// The current instance of IDataSource.
+        /// </value>
         public static IDataSource Current {
             get {
                 if(DataSourceServices._current==null) {
@@ -90,18 +120,27 @@ namespace Saraff.Twain.DS {
             }
         }
 
+        /// <summary>
+        /// Get current instance of DSM entry points.
+        /// </summary>
         private static Dictionary<uint, _DsmEntry> DsmEntries {
             get {
                 return DataSourceServices._current._dsmEntries;
             }
         }
 
+        /// <summary>
+        /// Get instance of current handler.
+        /// </summary>
         private static Dictionary<uint, HandlerIdentity> Handlers {
             get {
                 return DataSourceServices._current._handlers;
             }
         }
 
+        /// <summary>
+        /// Get a type of handler.
+        /// </summary>
         private Type HandlerType {
             get {
                 var _location = this._GetLocation();
@@ -115,7 +154,7 @@ namespace Saraff.Twain.DS {
                                 break;
                             }
                         } catch(Exception ex) {
-                            DataSourceServices.ToLog(ex);
+                            DataSourceServices._ToLog(ex);
                         }
                     }
 
@@ -124,11 +163,17 @@ namespace Saraff.Twain.DS {
             }
         }
 
+        /// <summary>
+        /// Get or set a c ondition code of last operation.
+        /// </summary>
         private TwCC ConditionCode {
             get;
             set;
         }
 
+        /// <summary>
+        /// Get the maximum number of connections.
+        /// </summary>
         private int MaxConnectionCount {
             get;
             set;
@@ -136,10 +181,18 @@ namespace Saraff.Twain.DS {
 
         #endregion
 
-        internal static void ToLog(Exception ex) {
+        private static void _ToLog(Exception ex) {
             try {
-#warning реализовать void ToLog(Exception ex)
-                // <<<
+                Debug.WriteLine(string.Empty);
+                Debug.WriteLine("========== BEGIN EXCEPTION ==========");
+                for(var _ex = ex; _ex!=null; _ex=_ex.InnerException) {
+                    Debug.WriteLine(string.Empty);
+                    Debug.WriteLine("{0}: {1}",_ex.GetType().Name,_ex.Message);
+                    Debug.WriteLine(_ex.StackTrace);
+                }
+                Debug.WriteLine(string.Empty);
+                Debug.WriteLine("========== END EXCEPTION ==========");
+                Debug.WriteLine(string.Empty);
             } catch {
             }
         }
@@ -151,6 +204,10 @@ namespace Saraff.Twain.DS {
             return DataSourceServices.DsmEntries[appId.Id].DsmRaw(DataSourceServices.Handlers[appId.Id].DS.IndentityPointer, DataSourceServices.Handlers[appId.Id].Application.IndentityPointer, TwDG.Control, TwDAT.Null, msg, IntPtr.Zero);
         }
 
+        /// <summary>
+        /// Get location of a data source.
+        /// </summary>
+        /// <returns>Path to a data source directory.</returns>
         private string _GetLocation() {
             foreach(var _frame in new StackTrace().GetFrames()) {
                 var _method=_frame.GetMethod();
@@ -161,6 +218,10 @@ namespace Saraff.Twain.DS {
             return Path.GetDirectoryName(this.GetType().Assembly.Location);
         }
 
+        /// <summary>
+        /// Get the identity structure for the Source.
+        /// </summary>
+        /// <returns>Instance of TwIdentity.</returns>
         private TwIdentity _GetDSIdentity() {
             var _asm=this.HandlerType.Assembly;
             var _ds=_asm.GetCustomAttributes(typeof(DataSourceAttribute), false)[0] as DataSourceAttribute;
@@ -184,6 +245,27 @@ namespace Saraff.Twain.DS {
             }
         }
 
+        /// <summary>
+        /// DG_CONTROL / DAT_IDENTITY / MSG_GET
+        /// This operation triplet is generated only by the Source Manager and is sent to the Source. It returns
+        /// the identity structure for the Source.
+        /// 
+        /// DG_CONTROL / DAT_IDENTITY / MSG_OPENDS
+        /// Opens the Source for operation.
+        /// 
+        /// DG_CONTROL / DAT_IDENTITY / MSG_CLOSEDS
+        /// Closes the Source so it can be unloaded from memory. The Source responds by doing its
+        /// shutdown and clean-up activities needed to ensure the heap will be “clean” after the Source is
+        /// unloaded.Under Windows, the Source will only be unloaded if the connection with the last
+        /// application accessing it is about to be broken.The Source will know this by its internal “connect
+        /// count” that should be maintained by any Source that supports multiple application connects.
+        /// </summary>
+        /// <param name="appId">This points to a TwIdentity structure.</param>
+        /// <param name="msg">The Message of the operation triplet.</param>
+        /// <param name="data">The pData parameter is a pointer to the data (a variable or, more
+        /// typically, a structure) that will be used according to the action specified by the operation
+        /// triplet.</param>
+        /// <returns>TWAIN Return Codes.</returns>
         private TwRC _IdentityControlProcessRequest(TwIdentity appId, TwMSG msg, IntPtr data) {
             TwIdentity _identity=(TwIdentity)Marshal.PtrToStructure(data, typeof(TwIdentity));
             switch(msg) {
@@ -210,6 +292,16 @@ namespace Saraff.Twain.DS {
             throw new DataSourceException(TwRC.Failure, TwCC.BadProtocol);
         }
 
+        /// <summary>
+        /// DG_CONTROL / DAT_STATUS / MSG_GET
+        /// Returns the current Condition Code for the specified Source.
+        /// </summary>
+        /// <param name="appId">This points to a TwIdentity structure.</param>
+        /// <param name="msg">The Message of the operation triplet.</param>
+        /// <param name="data">The pData parameter is a pointer to the data (a variable or, more
+        /// typically, a structure) that will be used according to the action specified by the operation
+        /// triplet.</param>
+        /// <returns>TWAIN Return Codes.</returns>
         private TwRC _StatusControlProcessRequest(TwIdentity appId, TwMSG msg, IntPtr data) {
             TwStatus _status=(TwStatus)Marshal.PtrToStructure(data, typeof(TwStatus));
             switch(msg) {
@@ -222,6 +314,19 @@ namespace Saraff.Twain.DS {
             throw new DataSourceException(TwRC.Failure, TwCC.BadProtocol);
         }
 
+        /// <summary>
+        /// DG_CONTROL / DAT_ENTRYPOINT / MSG_SET
+        /// The TWAIN 2.0 Source Manager issues this command to Sources (that set DF_DS2) prior of any
+        /// other command sent by the Application.In most cases it will immediately precede the call to
+        /// DG_CONTROL / DAT_IDENTITY / MSG_OPEN.
+        /// TWAIN 1.x Sources must continue to find and load the Source Manager DSM_Entry on
+        /// their own.
+        /// </summary>
+        /// <param name="appId">This points to a TwIdentity structure.</param>
+        /// <param name="msg">The Message of the operation triplet.</param>
+        /// typically, a structure) that will be used according to the action specified by the operation
+        /// triplet.</param>
+        /// <returns>TWAIN Return Codes.</returns>
         private TwRC _EntryPointControlProcessRequest(TwIdentity appId, TwMSG msg, TwEntryPoint entry) {
             switch(msg) {
                 case TwMSG.Set:
@@ -529,6 +634,22 @@ namespace Saraff.Twain.DS {
             #endregion
         }
 
+        /// <summary>
+        /// The Source Manager entry point. Typically called by applications, with the
+        /// following exceptions where a Source calls the Source Manager to communicate with an
+        /// Application:
+        /// DG_CONTROL / DAT_NULL / MSG_XFERREADY
+        /// DG_CONTROL / DAT_NULL / MSG_CLOSEDSREQ
+        /// DG_CONTROL / DAT_NULL / MSG_CLOSEDSOK
+        /// DG_CONTROL / DAT_NULL / MSG_DEVICEEVENT
+        /// </summary>
+        /// <param name="origin">Source of message.</param>
+        /// <param name="dest">Destination of message.</param>
+        /// <param name="dg">Data group ID: DG_xxxx.</param>
+        /// <param name="dat">Data argument type: DAT_xxxx.</param>
+        /// <param name="msg">Message ID: MSG_xxxx.</param>
+        /// <param name="arg">Pointer to data.</param>
+        /// <returns></returns>
         public delegate TwRC _DsmCallback(IntPtr origin, IntPtr dest, TwDG dg, TwDAT dat, TwMSG msg, IntPtr arg);
     }
 }

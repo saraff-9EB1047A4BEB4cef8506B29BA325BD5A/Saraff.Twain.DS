@@ -35,13 +35,27 @@ using System.Text;
 
 namespace Saraff.Twain.DS {
 
+    /// <summary>
+    /// Define preferred buffer size for a memory transfer mode.
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class MemXferBufferSizeAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemXferBufferSizeAttribute"/> class.
+        /// </summary>
+        /// <param name="value">The value.</param>
         public MemXferBufferSizeAttribute(uint value) {
             this.Value=value;
         }
 
+        /// <summary>
+        /// Gets the value.
+        /// </summary>
+        /// <value>
+        /// The value.
+        /// </value>
         public uint Value {
             get;
             private set;

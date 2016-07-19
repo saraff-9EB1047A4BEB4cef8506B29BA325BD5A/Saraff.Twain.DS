@@ -35,9 +35,16 @@ using System.Text;
 
 namespace Saraff.Twain.DS.Capabilities {
 
+    /// <summary>
+    /// Define that a Source supported LSB (ICAP_BITORDER).
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Class,AllowMultiple=false,Inherited=false)]
     public sealed class LsbFirstSupportedAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LsbFirstSupportedAttribute"/> class.
+        /// </summary>
         public LsbFirstSupportedAttribute() {
         }
     }

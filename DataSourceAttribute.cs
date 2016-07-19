@@ -35,9 +35,17 @@ using System.Text;
 
 namespace Saraff.Twain.DS {
 
+    /// <summary>
+    /// Define a Data Source.
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Assembly,AllowMultiple=false,Inherited=false)]
     public sealed class DataSourceAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataSourceAttribute"/> class.
+        /// </summary>
+        /// <param name="type">The type.</param>
         public DataSourceAttribute(Type type) {
             this.Type=type;
             this.Language=TwLanguage.RUSSIAN;
@@ -45,21 +53,45 @@ namespace Saraff.Twain.DS {
             this.MaxConnectionCount=1;
         }
 
+        /// <summary>
+        /// Gets the type of a Data Source.
+        /// </summary>
+        /// <value>
+        /// The type.
+        /// </value>
         public Type Type {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Gets or sets the language.
+        /// </summary>
+        /// <value>
+        /// The language.
+        /// </value>
         public TwLanguage Language {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the country.
+        /// </summary>
+        /// <value>
+        /// The country.
+        /// </value>
         public TwCountry Country {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the maximum connection count.
+        /// </summary>
+        /// <value>
+        /// The maximum connection count.
+        /// </value>
         public int MaxConnectionCount {
             get;
             set;

@@ -35,13 +35,27 @@ using System.Text;
 
 namespace Saraff.Twain.DS.Capabilities {
 
+    /// <summary>
+    /// Define which file formats the Source can generate.
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class ImageFileFormatAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ImageFileFormatAttribute"/> class.
+        /// </summary>
+        /// <param name="formats">The formats.</param>
         public ImageFileFormatAttribute(params TwFF[] formats) {
             this.SupportedFormats=formats;
         }
 
+        /// <summary>
+        /// Gets the supported formats.
+        /// </summary>
+        /// <value>
+        /// The supported formats.
+        /// </value>
         public TwFF[] SupportedFormats {
             get;
             private set;

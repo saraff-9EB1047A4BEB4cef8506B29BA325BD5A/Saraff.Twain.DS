@@ -35,13 +35,27 @@ using System.Text;
 
 namespace Saraff.Twain.DS {
 
+    /// <summary>
+    /// Define supported a Data Codes for a Data Source.
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class SupportedDataCodesAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SupportedDataCodesAttribute"/> class.
+        /// </summary>
+        /// <param name="dats">The dats.</param>
         public SupportedDataCodesAttribute(params TwDAT[] dats) {
             this.DataCodes=dats;
         }
 
+        /// <summary>
+        /// Gets the data codes.
+        /// </summary>
+        /// <value>
+        /// The data codes.
+        /// </value>
         public TwDAT[] DataCodes {
             get;
             private set;

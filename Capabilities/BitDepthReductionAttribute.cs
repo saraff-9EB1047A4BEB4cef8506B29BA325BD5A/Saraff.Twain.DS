@@ -35,13 +35,27 @@ using System.Text;
 
 namespace Saraff.Twain.DS.Capabilities {
 
+    /// <summary>
+    /// Specifies the Reduction Method the Source should use to reduce the bit depth of the data.
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class BitDepthReductionAttribute:Attribute {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BitDepthReductionAttribute"/> class.
+        /// </summary>
+        /// <param name="methods">The methods.</param>
         public BitDepthReductionAttribute(params TwBR[] methods) {
             this.ReductionMethods=methods;
         }
 
+        /// <summary>
+        /// Gets the reduction methods.
+        /// </summary>
+        /// <value>
+        /// The reduction methods.
+        /// </value>
         public TwBR[] ReductionMethods {
             get;
             private set;
