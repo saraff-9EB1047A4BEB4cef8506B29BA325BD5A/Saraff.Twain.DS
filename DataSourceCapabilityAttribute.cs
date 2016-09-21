@@ -78,7 +78,7 @@ namespace Saraff.Twain.DS {
         }
 
         /// <summary>
-        /// Gets or sets a container type of capability values.
+        /// Gets or sets a container type of capability values. A Enum by default.
         /// </summary>
         /// <value>
         /// The container type.
@@ -89,7 +89,7 @@ namespace Saraff.Twain.DS {
         }
 
         /// <summary>
-        /// Gets or sets a container type of current value.
+        /// Gets or sets a container type of current value. A One by default.
         /// </summary>
         /// <value>
         /// The container type.
@@ -100,7 +100,7 @@ namespace Saraff.Twain.DS {
         }
 
         /// <summary>
-        /// Gets or sets a container type of default value.
+        /// Gets or sets a container type of default value. A One by default.
         /// </summary>
         /// <value>
         /// The container type.
@@ -111,7 +111,7 @@ namespace Saraff.Twain.DS {
         }
 
         /// <summary>
-        /// Gets or sets the supported operations.
+        /// Gets or sets the supported operations. A Get|GetCurrent|GetDefault|Set|Reset by default.
         /// </summary>
         /// <value>
         /// The supported operations.

@@ -78,7 +78,7 @@ namespace Saraff.Twain.DS {
         /// triplet.
         /// </param>
         /// <returns>TWAIN Return Codes.</returns>
-        public virtual TwRC ProcessRequest(TwIdentity appId, TwDG dg, TwDAT dat, TwMSG msg, IntPtr data) {
+        public TwRC ProcessRequest(TwIdentity appId, TwDG dg, TwDAT dat, TwMSG msg, IntPtr data) {
             if(this.AppIdentity==null) {
                 this.AppIdentity=appId;
             }
