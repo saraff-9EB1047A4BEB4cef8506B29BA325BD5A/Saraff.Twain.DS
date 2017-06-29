@@ -223,18 +223,35 @@ namespace Saraff.Twain.DS {
         /// </summary>
         /// <returns>Instance of TwIdentity.</returns>
         private TwIdentity _GetDSIdentity() {
-            var _asm=this.HandlerType.Assembly;
-            var _ds=_asm.GetCustomAttributes(typeof(DataSourceAttribute), false)[0] as DataSourceAttribute;
-            var _groups=(SupportedGroupsAttribute)Attribute.GetCustomAttribute(this.HandlerType, typeof(SupportedGroupsAttribute),true)??new SupportedGroupsAttribute(TwDG.DS2);
-            var _version=new Version(((AssemblyFileVersionAttribute)Attribute.GetCustomAttribute(_asm, typeof(AssemblyFileVersionAttribute), false)??new AssemblyFileVersionAttribute("1.0.0.0")).Version);
+            var asm = HandlerType.Assembly;
+            var ds = asm.GetCustomAttributes(typeof(DataSourceAttribute), false)[0] as DataSourceAttribute;
+            var groups = (SupportedGroupsAttribute) Attribute.GetCustomAttribute(HandlerType, typeof(SupportedGroupsAttribute), true) ?? new SupportedGroupsAttribute(TwDG.DS2);
+            var provider = (DataSourceInfoProviderAttribute) Attribute.GetCustomAttribute(HandlerType, typeof(DataSourceInfoProviderAttribute)) ?? new DataSourceInfoProviderAttribute(typeof(DataSourceInfo));
+            IDataSourceInfo custom = new DataSourceInfo();
+            try
+            {
+                custom = Activator.CreateInstance(provider.Type) as IDataSourceInfo ?? new DataSourceInfo();
+            }
+            catch (Exception)
+            {}
 
+            var version = custom.Version ??
+                new Version(((AssemblyFileVersionAttribute)
+                             Attribute.GetCustomAttribute(asm, typeof(AssemblyFileVersionAttribute), false) ??
+                             new AssemblyFileVersionAttribute("1.0.0.0")).Version);
+
+            var company = custom.Company ?? ((AssemblyCompanyAttribute)
+                Attribute.GetCustomAttribute(asm, typeof(AssemblyCompanyAttribute), false) ??
+                new AssemblyCompanyAttribute("SARAFF SOFTWARE")).Company;
+            var productFamily = custom.ProductFamily ?? "TWAIN DS Class Library";
+            var productName = custom.ProductName ?? ((AssemblyProductAttribute)
+                Attribute.GetCustomAttribute(asm, typeof(AssemblyProductAttribute), false) ??
+                new AssemblyProductAttribute(this.HandlerType.Name)).Product;
             return new TwIdentity(0,
-                new TwVersion((ushort)_version.Major,(ushort)_version.Minor,_ds.Language,_ds.Country,_ds.Type.GUID.ToString()),
-                (ushort)_groups.ProtocolVersion.Major,
-                (ushort)_groups.ProtocolVersion.Minor,_groups.SupportedGroups,
-                ((AssemblyCompanyAttribute)Attribute.GetCustomAttribute(_asm, typeof(AssemblyCompanyAttribute), false)??new AssemblyCompanyAttribute("SARAFF SOFTWARE")).Company,
-                "TWAIN DS Class Library",
-                ((AssemblyProductAttribute)Attribute.GetCustomAttribute(_asm, typeof(AssemblyProductAttribute), false)??new AssemblyProductAttribute(this.HandlerType.Name)).Product);
+                                  new TwVersion((ushort) version.Major, (ushort) version.Minor, ds.Language, ds.Country, ds.Type.GUID.ToString()),
+                                  (ushort) groups.ProtocolVersion.Major,
+                                  (ushort) groups.ProtocolVersion.Minor, groups.SupportedGroups,
+                                  company, productFamily, productName);
         }
 
         private void _SetConditionCode(TwIdentity appId, TwCC cc) {

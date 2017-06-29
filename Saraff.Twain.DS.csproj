@@ -84,6 +84,7 @@
     <Compile Include="Capabilities\ThresholdDataSourceCapabilitiy.cs" />
     <Compile Include="Capabilities\XferMechAttribute.cs" />
     <Compile Include="CapabilityEventArgs.cs" />
+    <Compile Include="DataSourceInfoProviderAttribute.cs" />
     <Compile Include="DataSourceInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
