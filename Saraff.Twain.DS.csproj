@@ -90,6 +90,7 @@
     <Compile Include="DataSourceInstaller.Designer.cs">
       <DependentUpon>DataSourceInstaller.cs</DependentUpon>
     </Compile>
+    <Compile Include="IIdentityProvider.cs" />
     <Compile Include="ImageInfo.cs" />
     <Compile Include="ImageLayoutAttribute.cs" />
     <Compile Include="ImageMemXfer.cs" />

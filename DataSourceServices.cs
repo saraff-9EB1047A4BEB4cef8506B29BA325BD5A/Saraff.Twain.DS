@@ -224,17 +224,19 @@ namespace Saraff.Twain.DS {
         /// <returns>Instance of TwIdentity.</returns>
         private TwIdentity _GetDSIdentity() {
             var _asm=this.HandlerType.Assembly;
-            var _ds=_asm.GetCustomAttributes(typeof(DataSourceAttribute), false)[0] as DataSourceAttribute;
-            var _groups=(SupportedGroupsAttribute)Attribute.GetCustomAttribute(this.HandlerType, typeof(SupportedGroupsAttribute),true)??new SupportedGroupsAttribute(TwDG.DS2);
-            var _version=new Version(((AssemblyFileVersionAttribute)Attribute.GetCustomAttribute(_asm, typeof(AssemblyFileVersionAttribute), false)??new AssemblyFileVersionAttribute("1.0.0.0")).Version);
+            var _ds=Attribute.GetCustomAttribute(_asm,typeof(DataSourceAttribute),false) as DataSourceAttribute;
+            var _identity = (_ds.IdentityProvider!=null ? Activator.CreateInstance(_ds.IdentityProvider) as IIdentityProvider : null)?.Identity??new _DefaultIdentityProvider(_asm).Identity;
+            var _groups = Attribute.GetCustomAttribute(this.HandlerType,typeof(SupportedGroupsAttribute),true) as SupportedGroupsAttribute;
+            var _protocol = _groups?.ProtocolVersion??new Version(2,3);
 
             return new TwIdentity(0,
-                new TwVersion((ushort)_version.Major,(ushort)_version.Minor,_ds.Language,_ds.Country,_ds.Type.GUID.ToString()),
-                (ushort)_groups.ProtocolVersion.Major,
-                (ushort)_groups.ProtocolVersion.Minor,_groups.SupportedGroups,
-                ((AssemblyCompanyAttribute)Attribute.GetCustomAttribute(_asm, typeof(AssemblyCompanyAttribute), false)??new AssemblyCompanyAttribute("SARAFF SOFTWARE")).Company,
-                "TWAIN DS Class Library",
-                ((AssemblyProductAttribute)Attribute.GetCustomAttribute(_asm, typeof(AssemblyProductAttribute), false)??new AssemblyProductAttribute(this.HandlerType.Name)).Product);
+                new TwVersion((ushort)_identity.Version.Major,(ushort)_identity.Version.Minor,_ds.Language,_ds.Country,_ds.Type.GUID.ToString()),
+                (ushort)_protocol.Major,
+                (ushort)_protocol.Minor,
+                _groups?.SupportedGroups??TwDG.DS2,
+                _identity.Company,
+                _identity.ProductFamily,
+                _identity.ProductName);
         }
 
         private void _SetConditionCode(TwIdentity appId, TwCC cc) {
@@ -325,7 +327,8 @@ namespace Saraff.Twain.DS {
         /// <param name="appId">This points to a TwIdentity structure.</param>
         /// <param name="msg">The Message of the operation triplet.</param>
         /// typically, a structure) that will be used according to the action specified by the operation
-        /// triplet.</param>
+        /// triplet.
+        /// <param name="entry"></param>
         /// <returns>TWAIN Return Codes.</returns>
         private TwRC _EntryPointControlProcessRequest(TwIdentity appId, TwMSG msg, TwEntryPoint entry) {
             switch(msg) {
@@ -436,6 +439,25 @@ namespace Saraff.Twain.DS {
             public TwIdentity Identity {
                 get;
                 private set;
+            }
+        }
+
+        private sealed class _DefaultIdentityProvider:IIdentityProvider {
+            private Assembly _asm = null;
+
+            public _DefaultIdentityProvider(Assembly assembly) {
+                this._asm=assembly;
+            }
+
+            public Identity Identity {
+                get {
+                    return new Identity {
+                        Company=(Attribute.GetCustomAttribute(_asm,typeof(AssemblyCompanyAttribute),false) as AssemblyCompanyAttribute)?.Company??"SARAFF SOFTWARE",
+                        ProductFamily="TWAIN DS Class Library",
+                        ProductName=(Attribute.GetCustomAttribute(_asm,typeof(AssemblyProductAttribute),false) as AssemblyProductAttribute)?.Product??_asm.GetName().Name,
+                        Version=new Version((Attribute.GetCustomAttribute(_asm,typeof(AssemblyFileVersionAttribute),false) as AssemblyFileVersionAttribute)?.Version??"1.0.0.0")
+                    };
+                }
             }
         }
 
@@ -591,6 +613,11 @@ namespace Saraff.Twain.DS {
                 }
             }
 
+            /// <summary>
+            /// Заполняет нулями указанный блок памяти.
+            /// </summary>
+            /// <param name="dest">Указатель на блок памяти.</param>
+            /// <param name="size">Размер блока памяти.</param>
             public static void ZeroMemory(IntPtr dest, IntPtr size) {
                 switch(Environment.OSVersion.Platform) {
                     case PlatformID.Unix:

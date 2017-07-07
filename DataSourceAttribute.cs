@@ -96,5 +96,16 @@ namespace Saraff.Twain.DS {
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets or sets the identity provider of a Data Source.
+        /// </summary>
+        /// <value>
+        /// The identity provider of a Data Source.
+        /// </value>
+        public Type IdentityProvider {
+            get;
+            set;
+        }
     }
 }

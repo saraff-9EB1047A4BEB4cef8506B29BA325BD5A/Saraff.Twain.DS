@@ -115,7 +115,6 @@ namespace Saraff.Twain.DS {
         /// <summary>
         /// Performs an implicit conversion from <see cref="Saraff.Twain.DS.ImageInfo"/> to <see cref="Saraff.Twain.DS.TwImageInfo"/>.
         /// </summary>
-        /// <param name="info">The ImageInfo.</param>
         /// <returns>The TwImageInfo.</returns>
         internal TwImageInfo ToTwImageInfo() {
             return new TwImageInfo {
