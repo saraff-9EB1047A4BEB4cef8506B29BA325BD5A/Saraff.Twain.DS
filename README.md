@@ -7,6 +7,6 @@ PM> Install-Package Saraff.Twain.DS
 ```
 Also, you can see: 
 * [NuGet package of the Saraff.Twain.DS](https://www.nuget.org/packages/Saraff.Twain.DS/)
-* [Wiki of the Saraff.Twain.DS](https://github.com/saraff-9EB1047A4BEB4cef8506B29BA325BD5A/Saraff.Twain.DS/wiki)
+* [Wiki of the Saraff.Twain.DS](https://saraff-9eb1047a4beb4cef8506b29ba325bd5a.github.io/sarafftwainds/wiki/)
 * [Releases (includes a DS Entry Points (ds files) and a Merge Modules (msm files))](https://github.com/saraff-9EB1047A4BEB4cef8506B29BA325BD5A/Saraff.Twain.DS/releases)
-* [Samples](https://github.com/saraff-9EB1047A4BEB4cef8506B29BA325BD5A/Saraff.Twain.DS/wiki#samples)
+* [Samples](https://saraff-9eb1047a4beb4cef8506b29ba325bd5a.github.io/sarafftwainds/#samples)
