@@ -46,11 +46,12 @@ namespace Saraff.Twain.DS {
     /// </summary>
     /// <seealso cref="Saraff.Twain.DS.IDataSource" />
     [SupportedDataCodes(TwDAT.Identity, TwDAT.Status, TwDAT.EntryPoint)]
-    public sealed class DataSourceServices:IDataSource {
+    public sealed class DataSourceServices : IDataSource {
         private static DataSourceServices _current;
-        private Dictionary<string,Type> _handlerType=new Dictionary<string, Type>();
-        private Dictionary<uint, _DsmEntry> _dsmEntries=new Dictionary<uint, _DsmEntry>();
-        private Dictionary<uint, HandlerIdentity> _handlers=new Dictionary<uint, HandlerIdentity>();
+        private readonly Dictionary<string, Type> _handlerType = new Dictionary<string, Type>();
+        private readonly Dictionary<uint, _DsmEntry> _dsmEntries = new Dictionary<uint, _DsmEntry>();
+        private readonly Dictionary<uint, HandlerIdentity> _handlers = new Dictionary<uint, HandlerIdentity>();
+        private readonly Dictionary<uint, Saraff.IoC.ServiceContainer> _conteiners = new Dictionary<uint, Saraff.IoC.ServiceContainer>();
 
         /// <summary>
         /// Prevents a default instance of the <see cref="DataSourceServices"/> class from being created.
@@ -78,7 +79,7 @@ namespace Saraff.Twain.DS {
         /// <returns>TWAIN Return Codes.</returns>
         public TwRC ProcessRequest(TwIdentity appId, TwDG dg, TwDAT dat, TwMSG msg, IntPtr data) {
             try {
-                if(dg==TwDG.Control) {
+                if(dg == TwDG.Control) {
                     switch(dat) {
                         case TwDAT.Identity:
                             return this._IdentityControlProcessRequest(appId, msg, data);
@@ -91,11 +92,19 @@ namespace Saraff.Twain.DS {
                 this._SetConditionCode(appId, TwCC.Success);
                 return this._handlers[appId.Id].ProcessRequest(dg, dat, msg, data);
             } catch(DataSourceException ex) {
-                DataSourceServices._ToLog(ex);
                 this._SetConditionCode(appId, ex.ConditionCode);
+                this._ToLog(ex);
+                try {
+                    this._GetExtension<Extensions.ILog>(appId)?.Write(ex);
+                } catch {
+                }
                 return ex.ReturnCode;
             } catch(Exception ex) {
-                DataSourceServices._ToLog(ex);
+                this._ToLog(ex);
+                try {
+                    this._GetExtension<Extensions.ILog>(appId)?.Write(ex);
+                } catch { 
+                }
             }
             this._SetConditionCode(appId, TwCC.OperationError);
             return TwRC.Failure;
@@ -111,32 +120,17 @@ namespace Saraff.Twain.DS {
         /// <value>
         /// The current instance of IDataSource.
         /// </value>
-        public static IDataSource Current {
-            get {
-                if(DataSourceServices._current==null) {
-                    DataSourceServices._current=new DataSourceServices();
-                }
-                return DataSourceServices._current;
-            }
-        }
+        public static IDataSource Current => DataSourceServices._current ?? (DataSourceServices._current = new DataSourceServices());
 
         /// <summary>
         /// Get current instance of DSM entry points.
         /// </summary>
-        private static Dictionary<uint, _DsmEntry> DsmEntries {
-            get {
-                return DataSourceServices._current._dsmEntries;
-            }
-        }
+        private static Dictionary<uint, _DsmEntry> DsmEntries => DataSourceServices._current._dsmEntries;
 
         /// <summary>
         /// Get instance of current handler.
         /// </summary>
-        private static Dictionary<uint, HandlerIdentity> Handlers {
-            get {
-                return DataSourceServices._current._handlers;
-            }
-        }
+        private static Dictionary<uint, HandlerIdentity> Handlers => DataSourceServices._current._handlers;
 
         /// <summary>
         /// Get a type of handler.
@@ -145,16 +139,16 @@ namespace Saraff.Twain.DS {
             get {
                 var _location = this._GetLocation();
                 if(!this._handlerType.ContainsKey(_location)) {
-                    foreach(var _file in Directory.GetFiles(this._GetLocation(), "*.dll")) {
+                    foreach(var _file in Directory.GetFiles(_location, "*.dll")) {
                         try {
-                            var _ds=Attribute.GetCustomAttribute(Assembly.LoadFrom(_file), typeof(DataSourceAttribute), false) as DataSourceAttribute;
-                            if(_ds!=null&&_ds.Type!=null&&_ds.Type.GetInterface(typeof(IDataSource).FullName)!=null) {
-                                this._handlerType.Add(_location,_ds.Type);
-                                this.MaxConnectionCount=_ds.MaxConnectionCount;
+                            var _ds = Attribute.GetCustomAttribute(Assembly.LoadFrom(_file), typeof(DataSourceAttribute), false) as DataSourceAttribute;
+                            if(_ds != null && _ds.Type != null && _ds.Type.GetInterface(typeof(IDataSource).FullName) != null) {
+                                this._handlerType.Add(_location, _ds.Type);
+                                this.MaxConnectionCount = _ds.MaxConnectionCount;
                                 break;
                             }
                         } catch(Exception ex) {
-                            DataSourceServices._ToLog(ex);
+                            this._ToLog(ex);
                         }
                     }
 
@@ -181,13 +175,13 @@ namespace Saraff.Twain.DS {
 
         #endregion
 
-        private static void _ToLog(Exception ex) {
+        private void _ToLog(Exception ex) {
             try {
                 Debug.WriteLine(string.Empty);
                 Debug.WriteLine("========== BEGIN EXCEPTION ==========");
-                for(var _ex = ex; _ex!=null; _ex=_ex.InnerException) {
+                for(var _ex = ex; _ex != null; _ex = _ex.InnerException) {
                     Debug.WriteLine(string.Empty);
-                    Debug.WriteLine("{0}: {1}",_ex.GetType().Name,_ex.Message);
+                    Debug.WriteLine("{0}: {1}", _ex.GetType().Name, _ex.Message);
                     Debug.WriteLine(_ex.StackTrace);
                 }
                 Debug.WriteLine(string.Empty);
@@ -210,8 +204,8 @@ namespace Saraff.Twain.DS {
         /// <returns>Path to a data source directory.</returns>
         private string _GetLocation() {
             foreach(var _frame in new StackTrace().GetFrames()) {
-                var _method=_frame.GetMethod();
-                for(var _location=_method.Module.FullyQualifiedName; Path.GetExtension(_location).ToLower()==".ds"&&_method.Name=="DS_Entry"; ) {
+                var _method = _frame.GetMethod();
+                for(var _location = _method.Module.FullyQualifiedName; Path.GetExtension(_location).ToLower() == ".ds" && _method.Name == "DS_Entry";) {
                     return Path.GetDirectoryName(_location);
                 }
             }
@@ -223,27 +217,34 @@ namespace Saraff.Twain.DS {
         /// </summary>
         /// <returns>Instance of TwIdentity.</returns>
         private TwIdentity _GetDSIdentity() {
-            var _asm=this.HandlerType.Assembly;
-            var _ds=Attribute.GetCustomAttribute(_asm,typeof(DataSourceAttribute),false) as DataSourceAttribute;
-            var _identity = (_ds.IdentityProvider!=null ? Activator.CreateInstance(_ds.IdentityProvider) as IIdentityProvider : null)?.Identity??new _DefaultIdentityProvider(_asm).Identity;
-            var _groups = Attribute.GetCustomAttribute(this.HandlerType,typeof(SupportedGroupsAttribute),true) as SupportedGroupsAttribute;
-            var _protocol = _groups?.ProtocolVersion??new Version(2,3);
+            var _asm = this.HandlerType.Assembly;
+            var _ds = Attribute.GetCustomAttribute(_asm, typeof(DataSourceAttribute), false) as DataSourceAttribute;
+            var _identity = (_ds.IdentityProvider != null ? Activator.CreateInstance(_ds.IdentityProvider) as IIdentityProvider : null)?.Identity ?? new _DefaultIdentityProvider(_asm).Identity;
+            var _groups = Attribute.GetCustomAttribute(this.HandlerType, typeof(SupportedGroupsAttribute), true) as SupportedGroupsAttribute;
+            var _protocol = _groups?.ProtocolVersion ?? new Version(2, 3);
 
             return new TwIdentity(0,
-                new TwVersion((ushort)_identity.Version.Major,(ushort)_identity.Version.Minor,_ds.Language,_ds.Country,_ds.Type.GUID.ToString()),
+                new TwVersion((ushort)_identity.Version.Major, (ushort)_identity.Version.Minor, _ds.Language, _ds.Country, _ds.Type.GUID.ToString()),
                 (ushort)_protocol.Major,
                 (ushort)_protocol.Minor,
-                _groups?.SupportedGroups??TwDG.DS2,
+                _groups?.SupportedGroups ?? TwDG.DS2,
                 _identity.Company,
                 _identity.ProductFamily,
                 _identity.ProductName);
         }
 
+        private T _GetExtension<T>(TwIdentity appId) where T : class {
+            if(this._conteiners.ContainsKey(appId.Id)) {
+                return (this._conteiners[appId.Id] as IServiceProvider)?.GetService(typeof(T)) as T;
+            }
+            return null;
+        }
+
         private void _SetConditionCode(TwIdentity appId, TwCC cc) {
             if(this._handlers.ContainsKey(appId.Id)) {
-                this._handlers[appId.Id].ConditionCode=cc;
+                this._handlers[appId.Id].ConditionCode = cc;
             } else {
-                this.ConditionCode=cc;
+                this.ConditionCode = cc;
             }
         }
 
@@ -269,22 +270,31 @@ namespace Saraff.Twain.DS {
         /// triplet.</param>
         /// <returns>TWAIN Return Codes.</returns>
         private TwRC _IdentityControlProcessRequest(TwIdentity appId, TwMSG msg, IntPtr data) {
-            TwIdentity _identity=(TwIdentity)Marshal.PtrToStructure(data, typeof(TwIdentity));
+            TwIdentity _identity = (TwIdentity)Marshal.PtrToStructure(data, typeof(TwIdentity));
             switch(msg) {
                 case TwMSG.Get:
                     Marshal.StructureToPtr(this._GetDSIdentity(), data, true);
                     return TwRC.Success;
                 case TwMSG.OpenDS:
-                    if(this._handlers.Count<this.MaxConnectionCount) {
-                        this._handlers.Add(appId.Id, new HandlerIdentity(appId, _identity, Activator.CreateInstance(this.HandlerType) as IDataSource));
+                    if(this._handlers.Count < this.MaxConnectionCount) {
+                        var _conteiner = new Saraff.IoC.ServiceContainer();
+                        _conteiner.Bind<Saraff.IoC.IConfiguration, IoC._Configuration>();
+                        _conteiner.Bind<IoC.IInstanceFactory>(_conteiner.CreateInstance<IoC._InstanceFactory>(i => i("container", _conteiner)));
+                        _conteiner.Bind<IoC.IBinder>(_conteiner.CreateInstance<IoC._Binder>(i => i("container", _conteiner)));
+                        _conteiner.Load(this.HandlerType.Assembly);
+                        this._conteiners.Add(appId.Id, _conteiner);
+
+                        this._handlers.Add(appId.Id, new HandlerIdentity(appId, _identity, _conteiner.CreateInstance(this.HandlerType) as IDataSource));
                         return TwRC.Success;
                     }
                     throw new DataSourceException(TwRC.Failure, TwCC.MaxConnections);
                 case TwMSG.CloseDS:
                     try {
                         this._handlers[appId.Id].Dispose();
+                        this._conteiners[appId.Id].Dispose();
                     } finally {
                         this._handlers.Remove(appId.Id);
+                        this._conteiners.Remove(appId.Id);
                         if(this._dsmEntries.ContainsKey(appId.Id)) {
                             this._dsmEntries.Remove(appId.Id);
                         }
@@ -305,10 +315,10 @@ namespace Saraff.Twain.DS {
         /// triplet.</param>
         /// <returns>TWAIN Return Codes.</returns>
         private TwRC _StatusControlProcessRequest(TwIdentity appId, TwMSG msg, IntPtr data) {
-            TwStatus _status=(TwStatus)Marshal.PtrToStructure(data, typeof(TwStatus));
+            TwStatus _status = (TwStatus)Marshal.PtrToStructure(data, typeof(TwStatus));
             switch(msg) {
                 case TwMSG.Get:
-                    _status.ConditionCode=this._handlers.ContainsKey(appId.Id)?this._handlers[appId.Id].ConditionCode:this.ConditionCode;
+                    _status.ConditionCode = this._handlers.ContainsKey(appId.Id) ? this._handlers[appId.Id].ConditionCode : this.ConditionCode;
                     Marshal.StructureToPtr(_status, data, true);
                     this._SetConditionCode(appId, TwCC.Success);
                     return TwRC.Success;
@@ -340,13 +350,13 @@ namespace Saraff.Twain.DS {
             throw new DataSourceException(TwRC.Failure, TwCC.BadProtocol);
         }
 
-        private sealed class HandlerIdentity:IDisposable {
+        private sealed class HandlerIdentity : IDisposable {
 
             public HandlerIdentity(TwIdentity appId, TwIdentity identity, IDataSource handler) {
-                this.DS=identity;
-                this.Application=appId;
-                this.Handler=handler;
-                this.ConditionCode=TwCC.Success;
+                this.DS = identity;
+                this.Application = appId;
+                this.Handler = handler;
+                this.ConditionCode = TwCC.Success;
             }
 
             public TwRC ProcessRequest(TwDG dg, TwDAT dat, TwMSG msg, IntPtr data) {
@@ -379,10 +389,7 @@ namespace Saraff.Twain.DS {
                 try {
                     this.DS.Dispose();
                     this.Application.Dispose();
-                    for(var _handler=this.Handler as IDisposable; _handler!=null; ) {
-                        _handler.Dispose();
-                        break;
-                    }
+                    (this.Handler as IDisposable)?.Dispose();
                 } catch {
                 }
             }
@@ -390,16 +397,16 @@ namespace Saraff.Twain.DS {
             #endregion
         }
 
-        private sealed class _TwIdentityCore:IDisposable {
-            private IntPtr _hIdentity=IntPtr.Zero;
-            private IntPtr _pIdentity=IntPtr.Zero;
+        private sealed class _TwIdentityCore : IDisposable {
+            private IntPtr _hIdentity = IntPtr.Zero;
+            private IntPtr _pIdentity = IntPtr.Zero;
 
             private _TwIdentityCore() {
             }
 
             public static implicit operator _TwIdentityCore(TwIdentity value) {
                 return new _TwIdentityCore {
-                    Identity=value
+                    Identity = value
                 };
             }
 
@@ -407,7 +414,7 @@ namespace Saraff.Twain.DS {
 
             public void Dispose() {
                 try {
-                    if(this._hIdentity!=IntPtr.Zero) {
+                    if(this._hIdentity != IntPtr.Zero) {
                         DataSourceServices.Memory.Free(this._hIdentity);
                     }
                 } catch {
@@ -418,8 +425,8 @@ namespace Saraff.Twain.DS {
 
             private IntPtr IdentityHandle {
                 get {
-                    if(this._hIdentity==IntPtr.Zero) {
-                        this._hIdentity=DataSourceServices.Memory.Alloc(Marshal.SizeOf(typeof(TwIdentity)));
+                    if(this._hIdentity == IntPtr.Zero) {
+                        this._hIdentity = DataSourceServices.Memory.Alloc(Marshal.SizeOf(typeof(TwIdentity)));
                     }
                     return this._hIdentity;
                 }
@@ -427,8 +434,8 @@ namespace Saraff.Twain.DS {
 
             public IntPtr IndentityPointer {
                 get {
-                    if(this._pIdentity==IntPtr.Zero) {
-                        this._pIdentity=DataSourceServices.Memory.Lock(this.IdentityHandle);
+                    if(this._pIdentity == IntPtr.Zero) {
+                        this._pIdentity = DataSourceServices.Memory.Lock(this.IdentityHandle);
                         DataSourceServices.Memory.Unlock(this.IdentityHandle);
                         Marshal.StructureToPtr(this.Identity, this._pIdentity, true);
                     }
@@ -442,20 +449,20 @@ namespace Saraff.Twain.DS {
             }
         }
 
-        private sealed class _DefaultIdentityProvider:IIdentityProvider {
+        private sealed class _DefaultIdentityProvider : IIdentityProvider {
             private Assembly _asm = null;
 
             public _DefaultIdentityProvider(Assembly assembly) {
-                this._asm=assembly;
+                this._asm = assembly;
             }
 
             public Identity Identity {
                 get {
                     return new Identity {
-                        Company=(Attribute.GetCustomAttribute(_asm,typeof(AssemblyCompanyAttribute),false) as AssemblyCompanyAttribute)?.Company??"SARAFF SOFTWARE",
-                        ProductFamily="TWAIN DS Class Library",
-                        ProductName=(Attribute.GetCustomAttribute(_asm,typeof(AssemblyProductAttribute),false) as AssemblyProductAttribute)?.Product??_asm.GetName().Name,
-                        Version=new Version((Attribute.GetCustomAttribute(_asm,typeof(AssemblyFileVersionAttribute),false) as AssemblyFileVersionAttribute)?.Version??"1.0.0.0")
+                        Company = (Attribute.GetCustomAttribute(_asm, typeof(AssemblyCompanyAttribute), false) as AssemblyCompanyAttribute)?.Company ?? "SARAFF SOFTWARE",
+                        ProductFamily = "TWAIN DS Class Library",
+                        ProductName = (Attribute.GetCustomAttribute(_asm, typeof(AssemblyProductAttribute), false) as AssemblyProductAttribute)?.Product ?? _asm.GetName().Name,
+                        Version = new Version((Attribute.GetCustomAttribute(_asm, typeof(AssemblyFileVersionAttribute), false) as AssemblyFileVersionAttribute)?.Version ?? "1.0.0.0")
                     };
                 }
             }
@@ -475,7 +482,7 @@ namespace Saraff.Twain.DS {
                     case PlatformID.MacOSX:
                         throw new NotImplementedException();
                     default:
-                        this.DsmRaw=_DsmEntry.CreateDelegate<_DsmCallback>(ptr);
+                        this.DsmRaw = _DsmEntry.CreateDelegate<_DsmCallback>(ptr);
                         break;
                 }
             }
@@ -509,10 +516,10 @@ namespace Saraff.Twain.DS {
             /// <typeparam name="T">Требуемый делегат.</typeparam>
             /// <param name="ptr">Указатель на DSM_Entry.</param>
             /// <returns>Делегат.</returns>
-            private static T CreateDelegate<T>(IntPtr ptr) where T:class {
+            private static T CreateDelegate<T>(IntPtr ptr) where T : class {
                 return Marshal.GetDelegateForFunctionPointer(ptr, typeof(T)) as T;
             }
-            
+
             #region Properties
 
             public _DsmCallback DsmRaw {
@@ -524,10 +531,10 @@ namespace Saraff.Twain.DS {
 
             #region import kernel32.dll
 
-            [DllImport("kernel32.dll", CharSet=CharSet.Ansi)]
+            [DllImport("kernel32.dll", CharSet = CharSet.Ansi)]
             private static extern IntPtr GetModuleHandle(string moduleName);
 
-            [DllImport("kernel32.dll", CharSet=CharSet.Ansi, ExactSpelling=true)]
+            [DllImport("kernel32.dll", CharSet = CharSet.Ansi, ExactSpelling = true)]
             private static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
 
             #endregion
@@ -545,7 +552,7 @@ namespace Saraff.Twain.DS {
             /// <param name="size">Размер блока памяти.</param>
             /// <returns>Дескриптор памяти.</returns>
             public static IntPtr Alloc(int size) {
-                if(Memory._entryPoint!=null&&Memory._entryPoint.MemoryAllocate!=null) {
+                if(Memory._entryPoint != null && Memory._entryPoint.MemoryAllocate != null) {
                     return Memory._entryPoint.MemoryAllocate(size);
                 }
                 switch(Environment.OSVersion.Platform) {
@@ -562,7 +569,7 @@ namespace Saraff.Twain.DS {
             /// </summary>
             /// <param name="handle">Дескриптор памяти.</param>
             public static void Free(IntPtr handle) {
-                if(Memory._entryPoint!=null&&Memory._entryPoint.MemoryFree!=null) {
+                if(Memory._entryPoint != null && Memory._entryPoint.MemoryFree != null) {
                     Memory._entryPoint.MemoryFree(handle);
                     return;
                 }
@@ -582,7 +589,7 @@ namespace Saraff.Twain.DS {
             /// <param name="handle">Дескриптор памяти.</param>
             /// <returns>Указатель на блок памяти.</returns>
             public static IntPtr Lock(IntPtr handle) {
-                if(Memory._entryPoint!=null&&Memory._entryPoint.MemoryLock!=null) {
+                if(Memory._entryPoint != null && Memory._entryPoint.MemoryLock != null) {
                     return Memory._entryPoint.MemoryLock(handle);
                 }
                 switch(Environment.OSVersion.Platform) {
@@ -599,7 +606,7 @@ namespace Saraff.Twain.DS {
             /// </summary>
             /// <param name="handle">Дескриптор памяти.</param>
             public static void Unlock(IntPtr handle) {
-                if(Memory._entryPoint!=null&&Memory._entryPoint.MemoryUnlock!=null) {
+                if(Memory._entryPoint != null && Memory._entryPoint.MemoryUnlock != null) {
                     Memory._entryPoint.MemoryUnlock(handle);
                     return;
                 }
@@ -621,7 +628,7 @@ namespace Saraff.Twain.DS {
             public static void ZeroMemory(IntPtr dest, IntPtr size) {
                 switch(Environment.OSVersion.Platform) {
                     case PlatformID.Unix:
-                        byte[] _data=new byte[size.ToInt32()];
+                        byte[] _data = new byte[size.ToInt32()];
                         Marshal.Copy(_data, 0, dest, _data.Length);
                         break;
                     case PlatformID.MacOSX:
@@ -637,24 +644,24 @@ namespace Saraff.Twain.DS {
             /// </summary>
             /// <param name="entry">Точки входа.</param>
             internal static void _SetEntryPoints(TwEntryPoint entry) {
-                Memory._entryPoint=entry;
+                Memory._entryPoint = entry;
             }
 
             #region import kernel32.dll
 
-            [DllImport("kernel32.dll", ExactSpelling=true)]
+            [DllImport("kernel32.dll", ExactSpelling = true)]
             private static extern IntPtr GlobalAlloc(int flags, int size);
 
-            [DllImport("kernel32.dll", ExactSpelling=true)]
+            [DllImport("kernel32.dll", ExactSpelling = true)]
             private static extern IntPtr GlobalLock(IntPtr handle);
 
-            [DllImport("kernel32.dll", ExactSpelling=true)]
+            [DllImport("kernel32.dll", ExactSpelling = true)]
             private static extern bool GlobalUnlock(IntPtr handle);
 
-            [DllImport("kernel32.dll", ExactSpelling=true)]
+            [DllImport("kernel32.dll", ExactSpelling = true)]
             private static extern IntPtr GlobalFree(IntPtr handle);
 
-            [DllImport("kernel32.dll", EntryPoint="RtlZeroMemory", SetLastError=false)]
+            [DllImport("kernel32.dll", EntryPoint = "RtlZeroMemory", SetLastError = false)]
             private static extern void _ZeroMemory(IntPtr dest, IntPtr size);
 
 

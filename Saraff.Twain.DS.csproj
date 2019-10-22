@@ -38,6 +38,9 @@
     <AssemblyOriginatorKeyFile>sign.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Saraff.IoC, Version=1.0.11.670, Culture=neutral, PublicKeyToken=941762d7e2681ad9, processorArchitecture=MSIL">
+      <HintPath>..\packages\Saraff.IoC.1.0.11.670\lib\net40\Saraff.IoC.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
@@ -90,10 +93,27 @@
     <Compile Include="DataSourceInstaller.Designer.cs">
       <DependentUpon>DataSourceInstaller.cs</DependentUpon>
     </Compile>
+    <Compile Include="Extensions\ILog.cs" />
     <Compile Include="IIdentityProvider.cs" />
     <Compile Include="ImageInfo.cs" />
     <Compile Include="ImageLayoutAttribute.cs" />
     <Compile Include="ImageMemXfer.cs" />
+    <Compile Include="IoC\BindServiceAttribute.cs" />
+    <Compile Include="IoC\IBinder.cs" />
+    <Compile Include="IoC\IContextBinder.cs" />
+    <Compile Include="IoC\IInstanceFactory.cs" />
+    <Compile Include="IoC\IListener.cs" />
+    <Compile Include="IoC\ProxyRequiredAttribute.cs" />
+    <Compile Include="IoC\ServiceRequiredAttribute.cs" />
+    <Compile Include="IoC\_Binder.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="IoC\_Configuration.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="IoC\_InstanceFactory.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="MemXferBufferSizeAttribute.cs" />
     <Compile Include="SupportedDataCodesAttribute.cs" />
     <Compile Include="Capabilities\SupportedDatsDataSourceCapability.cs" />
@@ -123,12 +143,14 @@
   <ItemGroup>
     <None Include="app.config" />
     <Compile Include="Capabilities\ImageFileFormatDataSourceCapability.cs" />
+    <None Include="packages.config" />
     <None Include="sign.snk" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="COPYING.LESSER.txt" />
     <Content Include="COPYING.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>IF "$(ConfigurationName)"=="Release" (
