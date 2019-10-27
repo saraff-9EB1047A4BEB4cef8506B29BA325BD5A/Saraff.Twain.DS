@@ -44,21 +44,7 @@ namespace Saraff.Twain.DS {
         private DataSourceCapabilityAttribute _info;
         private bool _suppressEvents=false;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DataSourceCapability"/> class.
-        /// </summary>
-        protected DataSourceCapability() {
-        }
-
         #region Internal
-
-        internal static DataSourceCapability Create(Type type,DataSource ds) {
-            for(var _instance=Activator.CreateInstance(type, true) as DataSourceCapability; _instance!=null; ) {
-                _instance.DS=ds;
-                return _instance;
-            }
-            return null;
-        }
 
         internal TwQC SupportedOperations {
             get {
@@ -173,6 +159,15 @@ namespace Saraff.Twain.DS {
         /// </summary>
         public event EventHandler<CapabilityEventArgs> CapabilityValueNeeded;
 
+        /// <summary>
+        /// Get related instance of <see cref="DataSource"/>.
+        /// </summary>
+        [IoC.ServiceRequired]
+        public IDataSource DataSource {
+            get;
+            set;
+        }
+
         #region Core
 
         /// <summary>
@@ -181,10 +176,7 @@ namespace Saraff.Twain.DS {
         /// <value>
         /// The Data Source.
         /// </value>
-        protected DataSource DS {
-            get;
-            private set;
-        }
+        protected DataSource DS => this.DataSource as DataSource;
 
         /// <summary>
         /// Returns the Source’s Available Values for a specified capability.

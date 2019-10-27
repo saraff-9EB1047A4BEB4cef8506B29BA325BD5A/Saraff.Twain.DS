@@ -31,11 +31,11 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Runtime.InteropServices;
-using System.Reflection;
 using System.Windows.Forms;
+using IoC = Saraff.Twain.DS.IoC;
 
 namespace Saraff.Twain.DS {
 
@@ -50,7 +50,7 @@ namespace Saraff.Twain.DS {
     [Capability(typeof(Capabilities.XferCountDataSourceCapability))]
     [Capability(typeof(Capabilities.FeederEnabledDataSourceCapability))]
     [SupportedDataCodes(TwDAT.Event, TwDAT.UserInterface, TwDAT.XferGroup, TwDAT.Capability, TwDAT.PendingXfers, TwDAT.SetupMemXfer, TwDAT.SetupFileXfer)]
-    public abstract class DataSource:IDataSource {
+    public abstract class DataSource : Component, IDataSource {
         private Dictionary<TwCap, DataSourceCapability> _capabilities;
         private ReadOnlyCollection<TwDAT> _dats;
         private ReadOnlyCollection<TwSX> _xferMechs;
@@ -760,7 +760,7 @@ namespace Saraff.Twain.DS {
                     this._capabilities=new Dictionary<TwCap, DataSourceCapability>();
                     for(var _type=this.GetType(); _type!=null; _type=_type.BaseType) {
                         foreach(CapabilityAttribute _attr in _type.GetCustomAttributes(typeof(CapabilityAttribute), false)) {
-                            var _cap=DataSourceCapability.Create(_attr.Type, this);
+                            var _cap = this.Factory.CreateInstance(_attr.Type) as DataSourceCapability;
                             if(_cap==null) {
                                 throw new InvalidOperationException(string.Format("Тип \"{0}\" должен быть производным от \"{1}\".", _attr.Type.FullName, typeof(DataSourceCapability)));
                             }
@@ -777,6 +777,15 @@ namespace Saraff.Twain.DS {
         }
 
         #endregion
+
+        /// <summary>
+        /// Фабрика классов.
+        /// </summary>
+        [IoC.ServiceRequired]
+        public IoC.IInstanceFactory Factory {
+            get;
+            set;
+        }
 
         [StructLayout(LayoutKind.Sequential, Pack=2)]
         private struct WINMSG {

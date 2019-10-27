@@ -284,7 +284,10 @@ namespace Saraff.Twain.DS {
                         _conteiner.Load(this.HandlerType.Assembly);
                         this._conteiners.Add(appId.Id, _conteiner);
 
-                        this._handlers.Add(appId.Id, new HandlerIdentity(appId, _identity, _conteiner.CreateInstance(this.HandlerType) as IDataSource));
+                        var _ds = _conteiner.CreateInstance(this.HandlerType) as IDataSource;
+                        _conteiner.Bind<IDataSource>(_ds);
+
+                        this._handlers.Add(appId.Id, _conteiner.CreateInstance<HandlerIdentity>(i => i("appId", appId), i => i("identity", _identity)));
                         return TwRC.Success;
                     }
                     throw new DataSourceException(TwRC.Failure, TwCC.MaxConnections);
@@ -352,6 +355,7 @@ namespace Saraff.Twain.DS {
 
         private sealed class HandlerIdentity : IDisposable {
 
+            [IoC.ServiceRequired]
             public HandlerIdentity(TwIdentity appId, TwIdentity identity, IDataSource handler) {
                 this.DS = identity;
                 this.Application = appId;

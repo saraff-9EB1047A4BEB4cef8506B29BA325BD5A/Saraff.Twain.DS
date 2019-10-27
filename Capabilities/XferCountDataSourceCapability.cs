@@ -39,7 +39,7 @@ namespace Saraff.Twain.DS.Capabilities {
     internal sealed class XferCountDataSourceCapability:DataSourceCapability {
         private short[] _value=new short[2];
 
-        private XferCountDataSourceCapability() {
+        public XferCountDataSourceCapability() {
             this.Current=this.Default=-1;
             this.DefaultIndexCore=0;
             this.CurrentIndexCore=1;

@@ -51,7 +51,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AudioDataSource.cs" />
+    <Compile Include="AudioDataSource.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Capabilities\ArrayDataSourceCapability.cs" />
     <Compile Include="Capabilities\BitDepthDataSourceCapability.cs" />
     <Compile Include="Capabilities\BitDepthReductionAttribute.cs" />
@@ -126,14 +128,18 @@
     <Compile Include="Capabilities\YNativeResolutionDataSourceCapability.cs" />
     <Compile Include="Capabilities\YResolutionDataSourceCapability.cs" />
     <Compile Include="CapabilityAttribute.cs" />
-    <Compile Include="DataSource.cs" />
+    <Compile Include="DataSource.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="DataSourceAttribute.cs" />
     <Compile Include="DataSourceCapabilityAttribute.cs" />
     <Compile Include="DataSourceException.cs" />
     <Compile Include="Extensions\Helper.cs" />
     <Compile Include="IDataSource.cs" />
     <Compile Include="DataSourceCapability.cs" />
-    <Compile Include="ImageDataSource.cs" />
+    <Compile Include="ImageDataSource.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DataSourceServices.cs" />
     <Compile Include="SupportedGroupsAttribute.cs" />
