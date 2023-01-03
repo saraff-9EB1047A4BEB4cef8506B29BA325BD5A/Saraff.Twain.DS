@@ -28,6 +28,9 @@
  * 
  * PLEASE SEND EMAIL TO:  twain@saraff.ru.
  */
+
+#if !NETCOREAPP
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -115,3 +118,5 @@ namespace Saraff.Twain.DS {
         }
     }
 }
+
+#endif

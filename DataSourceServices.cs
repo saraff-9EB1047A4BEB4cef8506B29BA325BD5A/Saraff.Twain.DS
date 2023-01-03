@@ -51,12 +51,18 @@ namespace Saraff.Twain.DS {
         private readonly Dictionary<string, Type> _handlerType = new Dictionary<string, Type>();
         private readonly Dictionary<uint, _DsmEntry> _dsmEntries = new Dictionary<uint, _DsmEntry>();
         private readonly Dictionary<uint, HandlerIdentity> _handlers = new Dictionary<uint, HandlerIdentity>();
-        private readonly Dictionary<uint, Saraff.IoC.ServiceContainer> _conteiners = new Dictionary<uint, Saraff.IoC.ServiceContainer>();
+        private readonly IServiceProvider _dsmServiceProvider;
+        private readonly Dictionary<uint, IServiceProvider> _containers = new Dictionary<uint, IServiceProvider>();
 
         /// <summary>
         /// Prevents a default instance of the <see cref="DataSourceServices"/> class from being created.
         /// </summary>
         private DataSourceServices() {
+            var _container = new Saraff.IoC.ServiceContainer();
+            _container.Bind<Saraff.IoC.IConfiguration, IoC._Configuration>();
+            _container.Bind<IoC.IContainerFactory>(_container.CreateInstance<IoC._ContainerFactory>(i => i("container", _container)));
+
+            this._dsmServiceProvider = _container;
         }
 
         #region IDataSource Members
@@ -234,8 +240,8 @@ namespace Saraff.Twain.DS {
         }
 
         private T _GetExtension<T>(TwIdentity appId) where T : class {
-            if(this._conteiners.ContainsKey(appId.Id)) {
-                return (this._conteiners[appId.Id] as IServiceProvider)?.GetService(typeof(T)) as T;
+            if(this._containers.ContainsKey(appId.Id)) {
+                return this._containers[appId.Id].GetService(typeof(T)) as T;
             }
             return null;
         }
@@ -277,27 +283,28 @@ namespace Saraff.Twain.DS {
                     return TwRC.Success;
                 case TwMSG.OpenDS:
                     if(this._handlers.Count < this.MaxConnectionCount) {
-                        var _conteiner = new Saraff.IoC.ServiceContainer();
-                        _conteiner.Bind<Saraff.IoC.IConfiguration, IoC._Configuration>();
-                        _conteiner.Bind<IoC.IInstanceFactory>(_conteiner.CreateInstance<IoC._InstanceFactory>(i => i("container", _conteiner)));
-                        _conteiner.Bind<IoC.IBinder>(_conteiner.CreateInstance<IoC._Binder>(i => i("container", _conteiner)));
-                        _conteiner.Load(this.HandlerType.Assembly);
-                        this._conteiners.Add(appId.Id, _conteiner);
+                        var _cf = this._dsmServiceProvider.GetService(typeof(IoC.IContainerFactory)) as IoC.IContainerFactory;
+                        var _provider = _cf.Create();
+                        var _binder = _provider.GetService(typeof(IoC.IBinder)) as IoC.IBinder;
+                        var _factory = _provider.GetService(typeof(IoC.IInstanceFactory)) as IoC.IInstanceFactory;
 
-                        var _ds = _conteiner.CreateInstance(this.HandlerType) as IDataSource;
-                        _conteiner.Bind<IDataSource>(_ds);
+                        _binder.Load(this.HandlerType.Assembly);
+                        this._containers.Add(appId.Id, _provider);
 
-                        this._handlers.Add(appId.Id, _conteiner.CreateInstance<HandlerIdentity>(i => i("appId", appId), i => i("identity", _identity)));
+                        var _ds = _factory.CreateInstance(this.HandlerType) as IDataSource;
+                        _binder.Bind<IDataSource>(_ds);
+
+                        this._handlers.Add(appId.Id, _factory.CreateInstance<HandlerIdentity>(i => i("appId", appId), i => i("identity", _identity)));
                         return TwRC.Success;
                     }
                     throw new DataSourceException(TwRC.Failure, TwCC.MaxConnections);
                 case TwMSG.CloseDS:
                     try {
                         this._handlers[appId.Id].Dispose();
-                        this._conteiners[appId.Id].Dispose();
+                        (this._containers[appId.Id] as IDisposable)?.Dispose();
                     } finally {
                         this._handlers.Remove(appId.Id);
-                        this._conteiners.Remove(appId.Id);
+                        this._containers.Remove(appId.Id);
                         if(this._dsmEntries.ContainsKey(appId.Id)) {
                             this._dsmEntries.Remove(appId.Id);
                         }
